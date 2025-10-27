@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discrete Probability Distributions & Binomial Distribution</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .presentation-header {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .presentation-header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .presentation-header p {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: scale(1.05);
+        }
+
+        .section {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .section.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .section h3 {
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            background: linear-gradient(90deg, #f8f9fa, #e9ecef);
+            padding: 10px 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .definition-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .definition-box h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .example {
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .example h4 {
+            color: #125dde;
+            margin-bottom: 10px;
+        }
+
+        .formula {
+            background: ;
+            border: 2px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+        }
+
+        .calculator {
+            background: #e7f3ff;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .calculator h4 {
+            color: #0056b3;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .input-group label {
+            min-width: 80px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            width: 120px;
+        }
+
+        .calc-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        .calc-btn:hover {
+            background: #0056b3;
+        }
+
+        .result {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: 600;
+            color: #155724;
+        }
+
+        .exercise {
+            background: #fff5f5;
+            border-left: 4px solid #e53e3e;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .exercise h4 {
+            color: #c53030;
+            margin-bottom: 10px;
+        }
+
+        .quiz-container {
+            background: #f0f4f8;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .question {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .question h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .options {
+            list-style: none;
+        }
+
+        .options li {
+            margin: 8px 0;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .options li:hover {
+            background: #e2e8f0;
+        }
+
+        .options li.selected {
+            background: #bee3f8;
+            border-left: 4px solid #3182ce;
+        }
+
+        .options li.correct {
+            background: #c6f6d5;
+            border-left: 4px solid #38a169;
+        }
+
+        .options li.incorrect {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+        }
+
+        .quiz-btn {
+            background: #805ad5;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin: 10px 5px;
+            transition: background 0.3s ease;
+        }
+
+        .quiz-btn:hover {
+            background: #6b46c1;
+        }
+
+        .score {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .table tr:hover {
+            background: #f7fafc;
+        }
+
+        .highlight {
+            background: #fff5b4;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        .math-expression {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
+        .lab-section {
+            background: #f0fff4;
+            border: 2px solid #68d391;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .lab-section h4 {
+            color: #2f855a;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .presentation-header h1 {
+                font-size: 2em;
+            }
+            
+            .navigation {
+                gap: 8px;
+            }
+            
+            .nav-btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .input-group input {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="presentation-header">
+            <h1>Discrete Probability Distributions & Binomial Distribution</h1>
+            <p>An Interactive Advanced Presentation</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-btn" onclick="showSection('discrete-prob')">Discrete Probability</button>
+            <button class="nav-btn" onclick="showSection('expected-value')">Expected Value & Std Dev</button>
+            <button class="nav-btn" onclick="showSection('binomial')">Binomial Distribution</button>
+            <button class="nav-btn" onclick="showSection('examples')">Advanced Examples</button>
+            <button class="nav-btn" onclick="showSection('exercises')">Practice Exercises</button>
+            <button class="nav-btn" onclick="showSection('lab')">Computer Lab</button>
+            <button class="nav-btn" onclick="showSection('quiz')">Quiz</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overview" class="section active">
+            <h2>📊 Course Overview</h2>
+            
+            <div class="definition-box">
+                <h4>Learning Objectives</h4>
+                <ul>
+                    <li>Understand discrete probability distributions and their properties</li>
+                    <li>Calculate expected values and standard deviations for discrete random variables</li>
+                    <li>Master the binomial distribution and its applications</li>
+                    <li>Apply probability concepts to real-world scenarios</li>
+                    <li>Use computational tools for probability calculations</li>
+                </ul>
+            </div>
+
+            <h3>What You'll Learn</h3>
+            <p>This comprehensive presentation covers the fundamental concepts of discrete probability distributions with a focus on the binomial distribution. We'll explore theoretical foundations, practical applications, and computational methods.</p>
+
+            <h3>Prerequisites</h3>
+            <ul>
+                <li>Basic algebra and arithmetic</li>
+                <li>Understanding of fractions and percentages</li>
+                <li>Basic combinatorics (combinations and permutations)</li>
+                <li>Elementary statistics concepts</li>
+            </ul>
+
+            <h3>Course Structure</h3>
+            <div class="table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Section</th>
+                            <th>Topic</th>
+                            <th>Duration</th>
+                            <th>Difficulty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Discrete Probability Distributions</td>
+                            <td>20 minutes</td>
+                            <td>Beginner</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Expected Value & Standard Deviation</td>
+                            <td>25 minutes</td>
+                            <td>Intermediate</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>Binomial Distribution</td>
+                            <td>30 minutes</td>
+                            <td>Intermediate</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>Advanced Examples</td>
+                            <td>25 minutes</td>
+                            <td>Advanced</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>Computer Lab</td>
+                            <td>30 minutes</td>
+                            <td>Practical</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Discrete Probability Section -->
+        <div id="discrete-prob" class="section">
+            <h2>🎲 Discrete Probability Distributions</h2>
+
+            <div class="definition-box">
+                <h4>Definition: Discrete Random Variable</h4>
+                <p>A <strong>discrete random variable</strong> is a variable that can take on a countable number of distinct values. Each possible value has an associated probability.</p>
+            </div>
+
+            <div class="definition-box">
+                <h4>Definition: Probability Distribution Function (PDF)</h4>
+                <p>For a discrete random variable X, the probability distribution function P(X = x) gives the probability that X takes the value x. It must satisfy:</p>
+                <ul>
+                    <li>0 ≤ P(X = x) ≤ 1 for all x</li>
+                    <li>∑ P(X = x) = 1 (sum over all possible values)</li>
+                </ul>
+            </div>
+
+            <h3>Key Properties of Discrete Probability Distributions</h3>
+            <ol>
+                <li><strong>Non-negativity:</strong> All probabilities are non-negative</li>
+                <li><strong>Normalization:</strong> The sum of all probabilities equals 1</li>
+                <li><strong>Countable outcomes:</strong> The sample space is countable</li>
+                <li><strong>Discrete values:</strong> No values between defined points</li>
+            </ol>
+
+            <h3>Coin Tossing Experiments</h3>
+
+            <div class="example">
+                <h4>Example 1: Single Coin Toss (Easy)</h4>
+                <p><strong>Scenario:</strong> A fair coin is flipped once. Let X be the number of heads.</p>
+                <p><strong>Sample Space:</strong> X ∈ {0, 1}</p>
+                <p><strong>Probability Distribution:</strong></p>
+                <ul>
+                    <li>P(X = 0) = 0.5 (Tails)</li>
+                    <li>P(X = 1) = 0.5 (Heads)</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 0 × P(X = 0) + 1 × P(X = 1) = 0 × 0.5 + 1 × 0.5 = 0.5</p>
+                <p><strong>Interpretation:</strong> On average, expect 0.5 heads per toss</p>
+                <p><strong>Verification:</strong> 0.5 + 0.5 = 1 ✓</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 2: Two Coins Toss (Easy)</h4>
+                <p><strong>Scenario:</strong> Two fair coins are flipped. Let X be the number of heads.</p>
+                <p><strong>Sample Space:</strong> X ∈ {0, 1, 2}</p>
+                <p><strong>Possible Outcomes:</strong> TT, TH, HT, HH</p>
+                <p><strong>Probability Distribution:</strong></p>
+                <ul>
+                    <li>P(X = 0) = 1/4 = 0.25 (TT)</li>
+                    <li>P(X = 1) = 2/4 = 0.50 (TH, HT)</li>
+                    <li>P(X = 2) = 1/4 = 0.25 (HH)</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 0 × 0.25 + 1 × 0.50 + 2 × 0.25 = 0 + 0.5 + 0.5 = 1.0</p>
+                <p><strong>Interpretation:</strong> On average, expect 1 head when flipping 2 coins</p>
+                <p><strong>Verification:</strong> 0.25 + 0.50 + 0.25 = 1 ✓</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 3: Three Coins Toss (Medium)</h4>
+                <p><strong>Scenario:</strong> Three fair coins are flipped. Let X be the number of heads.</p>
+                <p><strong>Sample Space:</strong> X ∈ {0, 1, 2, 3}</p>
+                <p><strong>Possible Outcomes:</strong> TTT, TTH, THT, HTT, THH, HTH, HHT, HHH</p>
+                <p><strong>Probability Distribution:</strong></p>
+                <ul>
+                    <li>P(X = 0) = 1/8 = 0.125 (TTT)</li>
+                    <li>P(X = 1) = 3/8 = 0.375 (TTH, THT, HTT)</li>
+                    <li>P(X = 2) = 3/8 = 0.375 (THH, HTH, HHT)</li>
+                    <li>P(X = 3) = 1/8 = 0.125 (HHH)</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 0 × 0.125 + 1 × 0.375 + 2 × 0.375 + 3 × 0.125</p>
+                <p>E(X) = 0 + 0.375 + 0.750 + 0.375 = 1.5</p>
+                <p><strong>Interpretation:</strong> On average, expect 1.5 heads when flipping 3 coins</p>
+                <p><strong>Verification:</strong> 0.125 + 0.375 + 0.375 + 0.125 = 1 ✓</p>
+            </div>
+
+            <h3>Dice Rolling Experiments</h3>
+
+            <div class="example">
+                <h4>Example 4: Single Die Roll (Easy)</h4>
+                <p><strong>Scenario:</strong> A fair six-sided die is rolled. Let X be the outcome.</p>
+                <p><strong>Sample Space:</strong> X ∈ {1, 2, 3, 4, 5, 6}</p>
+                <p><strong>Probability Distribution:</strong></p>
+                <ul>
+                    <li>P(X = k) = 1/6 for k = 1, 2, 3, 4, 5, 6</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 1×(1/6) + 2×(1/6) + 3×(1/6) + 4×(1/6) + 5×(1/6) + 6×(1/6)</p>
+                <p>E(X) = (1+2+3+4+5+6)/6 = 21/6 = 3.5</p>
+                <p><strong>Interpretation:</strong> On average, expect to roll 3.5</p>
+                <p><strong>Verification:</strong> 6 × (1/6) = 1 ✓</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 5: Sum of Two Dice (Medium)</h4>
+                <p><strong>Scenario:</strong> Two fair dice are rolled. Let X be the sum of the outcomes.</p>
+                <p><strong>Sample Space:</strong> X ∈ {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}</p>
+                <p><strong>Probability Distribution:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Sum (X)</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5</th>
+                            <th>6</th>
+                            <th>7</th>
+                            <th>8</th>
+                            <th>9</th>
+                            <th>10</th>
+                            <th>11</th>
+                            <th>12</th>
+                        </tr>
+                        <tr>
+                            <td>Ways</td>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>6</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>3</td>
+                            <td>2</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>P(X)</td>
+                            <td>1/36</td>
+                            <td>2/36</td>
+                            <td>3/36</td>
+                            <td>4/36</td>
+                            <td>5/36</td>
+                            <td>6/36</td>
+                            <td>5/36</td>
+                            <td>4/36</td>
+                            <td>3/36</td>
+                            <td>2/36</td>
+                            <td>1/36</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 2×(1/36) + 3×(2/36) + 4×(3/36) + 5×(4/36) + 6×(5/36) + 7×(6/36) + 8×(5/36) + 9×(4/36) + 10×(3/36) + 11×(2/36) + 12×(1/36)</p>
+                <p>E(X) = (2 + 6 + 12 + 20 + 30 + 42 + 40 + 36 + 30 + 22 + 12)/36 = 252/36 = 7</p>
+                <p><strong>Interpretation:</strong> On average, expect sum of 7 when rolling two dice</p>
+                <p><strong>Note:</strong> 7 is the most likely outcome (probability = 6/36 = 1/6)</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 6: Maximum of Three Dice (Hard)</h4>
+                <p><strong>Scenario:</strong> Three fair dice are rolled. Let X be the maximum value shown.</p>
+                <p><strong>Sample Space:</strong> X ∈ {1, 2, 3, 4, 5, 6}</p>
+                <p><strong>Probability Distribution Calculation:</strong></p>
+                <p>P(X = k) = P(max ≤ k) - P(max ≤ k-1) = (k/6)³ - ((k-1)/6)³</p>
+                <ul>
+                    <li>P(X = 1) = (1/6)³ = 1/216 ≈ 0.0046</li>
+                    <li>P(X = 2) = (2/6)³ - (1/6)³ = 8/216 - 1/216 = 7/216 ≈ 0.0324</li>
+                    <li>P(X = 3) = (3/6)³ - (2/6)³ = 27/216 - 8/216 = 19/216 ≈ 0.0880</li>
+                    <li>P(X = 4) = (4/6)³ - (3/6)³ = 64/216 - 27/216 = 37/216 ≈ 0.1713</li>
+                    <li>P(X = 5) = (5/6)³ - (4/6)³ = 125/216 - 64/216 = 61/216 ≈ 0.2824</li>
+                    <li>P(X = 6) = (6/6)³ - (5/6)³ = 216/216 - 125/216 = 91/216 ≈ 0.4213</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 1×(1/216) + 2×(7/216) + 3×(19/216) + 4×(37/216) + 5×(61/216) + 6×(91/216)</p>
+                <p>E(X) = (1 + 14 + 57 + 148 + 305 + 546)/216 = 1071/216 ≈ 4.96</p>
+                <p><strong>Interpretation:</strong> On average, expect maximum value of about 5 when rolling three dice</p>
+            </div>
+
+            <h3>Gambling Applications: Why the House Always Wins</h3>
+
+            <div class="example">
+                <h4>Example 7: Casino Roulette (Real-World Application)</h4>
+                <p><strong>Scenario:</strong> American roulette wheel has 38 slots: 18 red, 18 black, 2 green (0, 00). You bet $10 on red.</p>
+                <p><strong>Random Variable X:</strong> Your net winnings</p>
+                <p><strong>Outcomes:</strong></p>
+                <ul>
+                    <li>Win $10 (if red): P(X = 10) = 18/38 ≈ 0.4737</li>
+                    <li>Lose $10 (if black or green): P(X = -10) = 20/38 ≈ 0.5263</li>
+                </ul>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 10 × (18/38) + (-10) × (20/38)</p>
+                <p>E(X) = 180/38 - 200/38 = -20/38 ≈ -$0.53</p>
+                <p><strong>Gambling Insight:</strong> On average, you lose 53 cents per $10 bet!</p>
+                <p><strong>Long-term Effect:</strong> After 1000 bets of $10 each, expected loss = $530</p>
+                <p><strong>House Edge:</strong> 20/38 ≈ 5.26% - this guarantees casino profit over time</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 8: Lottery Ticket Analysis (Real-World Application)</h4>
+                <p><strong>Scenario:</strong> A scratch-off lottery ticket costs $5. Prizes and probabilities:</p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Prize (X)</th>
+                            <th>$0</th>
+                            <th>$5</th>
+                            <th>$25</th>
+                            <th>$100</th>
+                            <th>$1,000</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.75</td>
+                            <td>0.15</td>
+                            <td>0.08</td>
+                            <td>0.015</td>
+                            <td>0.005</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Value Calculation:</strong></p>
+                <p>E(X) = 0×0.75 + 5×0.15 + 25×0.08 + 100×0.015 + 1000×0.005</p>
+                <p>E(X) = 0 + 0.75 + 2.0 + 1.5 + 5.0 = $9.25</p>
+                <p><strong>Net Expected Value:</strong> $9.25 - $5.00 = $4.25 loss per ticket</p>
+                <p><strong>Gambling Reality:</strong> For every $5 spent, expect to get back only $9.25 - but you paid $5!</p>
+                <p><strong>Effective Loss Rate:</strong> ($5.00 - $9.25)/$5.00 = -15% return on investment</p>
+                <p><strong>Long-term Effect:</strong> Buy 100 tickets → Expect to lose $425</p>
+            </div>
+
+            <h3>Investment Decision Making Using Expected Value</h3>
+
+            <div class="example">
+                <h4>Example 9: Investment Portfolio Comparison (Real-World Application)</h4>
+                <p><strong>Scenario:</strong> Choose between three investment options for $10,000:</p>
+                
+                <p><strong>Investment A - Conservative Bonds:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Return (%)</th>
+                            <th>3%</th>
+                            <th>4%</th>
+                            <th>5%</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.2</td>
+                            <td>0.6</td>
+                            <td>0.2</td>
+                        </tr>
+                    </table>
+                </div>
+                <p>E(Return_A) = 3×0.2 + 4×0.6 + 5×0.2 = 0.6 + 2.4 + 1.0 = 4.0%</p>
+                <p>Expected Dollar Return: $10,000 × 0.04 = $400</p>
+
+                <p><strong>Investment B - Growth Stocks:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Return (%)</th>
+                            <th>-5%</th>
+                            <th>8%</th>
+                            <th>15%</th>
+                            <th>25%</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.1</td>
+                            <td>0.4</td>
+                            <td>0.4</td>
+                            <td>0.1</td>
+                        </tr>
+                    </table>
+                </div>
+                <p>E(Return_B) = (-5)×0.1 + 8×0.4 + 15×0.4 + 25×0.1 = -0.5 + 3.2 + 6.0 + 2.5 = 11.2%</p>
+                <p>Expected Dollar Return: $10,000 × 0.112 = $1,120</p>
+
+                <p><strong>Investment C - Tech Startup:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Return (%)</th>
+                            <th>-100%</th>
+                            <th>-50%</th>
+                            <th>20%</th>
+                            <th>200%</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.3</td>
+                            <td>0.3</td>
+                            <td>0.3</td>
+                            <td>0.1</td>
+                        </tr>
+                    </table>
+                </div>
+                <p>E(Return_C) = (-100)×0.3 + (-50)×0.3 + 20×0.3 + 200×0.1 = -30 - 15 + 6 + 20 = -19%</p>
+                <p>Expected Dollar Return: $10,000 × (-0.19) = -$1,900 (Loss!)</p>
+
+                <p><strong>Investment Decision Analysis:</strong></p>
+                <ul>
+                    <li><strong>Ranking by Expected Value:</strong> B ($1,120) > A ($400) > C (-$1,900)</li>
+                    <li><strong>Risk vs. Return:</strong> Investment B offers highest expected return</li>
+                    <li><strong>Risk Tolerance:</strong> Conservative investors might prefer A despite lower return</li>
+                    <li><strong>Avoid Investment C:</strong> Negative expected value means expected loss</li>
+                </ul>
+            </div>
+
+            <div class="example">
+                <h4>Example 10: Real Estate Investment Analysis (Advanced Application)</h4>
+                <p><strong>Scenario:</strong> Evaluating a $200,000 rental property investment over 5 years:</p>
+                
+                <p><strong>Possible Scenarios:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Market Condition</th>
+                            <th>Annual Net Income</th>
+                            <th>Property Value Change</th>
+                            <th>Total 5-Year Return</th>
+                            <th>Probability</th>
+                        </tr>
+                        <tr>
+                            <td>Strong Growth</td>
+                            <td>$15,000</td>
+                            <td>+$100,000</td>
+                            <td>$175,000</td>
+                            <td>0.2</td>
+                        </tr>
+                        <tr>
+                            <td>Moderate Growth</td>
+                            <td>$12,000</td>
+                            <td>+$50,000</td>
+                            <td>$110,000</td>
+                            <td>0.4</td>
+                        </tr>
+                        <tr>
+                            <td>Stable Market</td>
+                            <td>$10,000</td>
+                            <td>$0</td>
+                            <td>$50,000</td>
+                            <td>0.25</td>
+                        </tr>
+                        <tr>
+                            <td>Market Decline</td>
+                            <td>$8,000</td>
+                            <td>-$40,000</td>
+                            <td>$0</td>
+                            <td>0.15</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p><strong>Expected Return Calculation:</strong></p>
+                <p>E(Return) = 175,000×0.2 + 110,000×0.4 + 50,000×0.25 + 0×0.15</p>
+                <p>E(Return) = 35,000 + 44,000 + 12,500 + 0 = $91,500</p>
+                
+                <p><strong>Investment Analysis:</strong></p>
+                <ul>
+                    <li><strong>Expected 5-year return:</strong> $91,500 on $200,000 investment</li>
+                    <li><strong>Annual expected return rate:</strong> $91,500 ÷ 5 ÷ $200,000 = 9.15%</li>
+                    <li><strong>Risk assessment:</strong> 15% chance of breaking even, 85% chance of profit</li>
+                    <li><strong>Decision:</strong> Attractive investment if 9.15% exceeds your required return rate</li>
+                </ul>
+            </div>
+
+            <h3>Additional Practical Applications</h3>
+
+            <div class="example">
+                <h4>Example 11: Insurance Premium Calculation (Business Application)</h4>
+                <p><strong>Scenario:</strong> An insurance company analyzes claims for car insurance. Let X be annual claims per policy:</p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Claims (X)</th>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3+</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.70</td>
+                            <td>0.20</td>
+                            <td>0.08</td>
+                            <td>0.02</td>
+                        </tr>
+                        <tr>
+                            <td>Average Cost</td>
+                            <td>$0</td>
+                            <td>$3,000</td>
+                            <td>$6,000</td>
+                            <td>$15,000</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Cost per Policy:</strong></p>
+                <p>E(Cost) = 0×0.70 + 3000×0.20 + 6000×0.08 + 15000×0.02</p>
+                <p>E(Cost) = 0 + 600 + 480 + 300 = $1,380</p>
+                <p><strong>Business Decision:</strong> Company should charge at least $1,380 + overhead + profit margin per policy</p>
+                <p><strong>Risk Management:</strong> 30% of policies will have claims, but expected value guides pricing</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 12: Production Quality Analysis (Manufacturing)</h4>
+                <p><strong>Scenario:</strong> A manufacturing line produces items with varying quality scores. Let X be the quality score (1-5 scale):</p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Quality Score (X)</th>
+                            <th>1 (Poor)</th>
+                            <th>2 (Fair)</th>
+                            <th>3 (Good)</th>
+                            <th>4 (Very Good)</th>
+                            <th>5 (Excellent)</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.05</td>
+                            <td>0.10</td>
+                            <td>0.35</td>
+                            <td>0.35</td>
+                            <td>0.15</td>
+                        </tr>
+                        <tr>
+                            <td>Revenue per Unit</td>
+                            <td>$10</td>
+                            <td>$25</td>
+                            <td>$40</td>
+                            <td>$60</td>
+                            <td>$100</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Quality Score:</strong></p>
+                <p>E(X) = 1×0.05 + 2×0.10 + 3×0.35 + 4×0.35 + 5×0.15 = 3.45</p>
+                <p><strong>Expected Revenue per Unit:</strong></p>
+                <p>E(Revenue) = 10×0.05 + 25×0.10 + 40×0.35 + 60×0.35 + 100×0.15 = $49</p>
+                <p><strong>Manufacturing Insight:</strong> Average quality is between "Good" and "Very Good" with expected revenue of $49 per unit</p>
+            </div>
+
+            <div class="calculator">
+                <h4>🎯 Advanced Discrete Distribution Calculator</h4>
+                <p>Calculate expected value for custom discrete distributions:</p>
+                <div class="input-group">
+                    <label>Values (X):</label>
+                    <input type="text" id="customValues" placeholder="1, 2, 3, 4, 5" style="width: 200px;">
+                </div>
+                <div class="input-group">
+                    <label>Probabilities:</label>
+                    <input type="text" id="customProbs" placeholder="0.2, 0.3, 0.3, 0.15, 0.05" style="width: 250px;">
+                </div>
+                <div class="input-group">
+                    <label>Payoffs (optional):</label>
+                    <input type="text" id="customPayoffs" placeholder="10, 25, 40, 60, 100" style="width: 200px;">
+                </div>
+                <button class="calc-btn" onclick="calculateCustomDistribution()">Calculate</button>
+                <div id="customDistributionResult"></div>
+            </div>
+        </div>
+
+        <!-- Expected Value Section -->
+        <div id="expected-value" class="section">
+            <h2>📈 Expected Value and Standard Deviation</h2>
+
+            <div class="definition-box">
+                <h4>Definition: Expected Value (Mean)</h4>
+                <p>The <strong>expected value</strong> E(X) or μ of a discrete random variable X is the weighted average of all possible values, where the weights are the probabilities:</p>
+                <div class="formula">
+                    E(X) = μ = ∑ x · P(X = x)
+                </div>
+                <p>The expected value represents the long-run average outcome if the experiment is repeated many times.</p>
+            </div>
+
+            <div class="definition-box">
+                <h4>Definition: Variance and Standard Deviation</h4>
+                <p>The <strong>variance</strong> Var(X) or σ² measures the spread of the distribution:</p>
+                <div class="formula">
+                    Var(X) = σ² = E[(X - μ)²] = ∑ (x - μ)² · P(X = x)
+                </div>
+                <p>Alternative formula: Var(X) = E(X²) - [E(X)]²</p>
+                <p>The <strong>standard deviation</strong> σ is the square root of variance:</p>
+                <div class="formula">
+                    σ = √Var(X)
+                </div>
+            </div>
+
+            <h3>Properties of Expected Value</h3>
+            <ul>
+                <li><strong>Linearity:</strong> E(aX + b) = aE(X) + b</li>
+                <li><strong>Addition:</strong> E(X + Y) = E(X) + E(Y)</li>
+                <li><strong>Independence:</strong> If X and Y are independent, E(XY) = E(X)E(Y)</li>
+            </ul>
+
+            <h3>Examples with Calculations</h3>
+
+            <div class="example">
+                <h4>Example 1: Fair Die Expected Value (Easy)</h4>
+                <p><strong>Setup:</strong> X = outcome of rolling a fair six-sided die</p>
+                <p><strong>Calculation:</strong></p>
+                <p>E(X) = 1×(1/6) + 2×(1/6) + 3×(1/6) + 4×(1/6) + 5×(1/6) + 6×(1/6)</p>
+                <p>E(X) = (1+2+3+4+5+6)/6 = 21/6 = 3.5</p>
+                <p><strong>Interpretation:</strong> On average, you'd expect to roll 3.5 (between 3 and 4)</p>
+                
+                <p><strong>Variance Calculation:</strong></p>
+                <p>E(X²) = 1²×(1/6) + 2²×(1/6) + 3²×(1/6) + 4²×(1/6) + 5²×(1/6) + 6²×(1/6)</p>
+                <p>E(X²) = (1+4+9+16+25+36)/6 = 91/6 ≈ 15.17</p>
+                <p>Var(X) = E(X²) - [E(X)]² = 15.17 - (3.5)² = 15.17 - 12.25 = 2.92</p>
+                <p>σ = √2.92 ≈ 1.71</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 2: Customer Arrivals (Medium)</h4>
+                <p><strong>Distribution from earlier:</strong></p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>X</th>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                        </tr>
+                        <tr>
+                            <td>P(X)</td>
+                            <td>0.1</td>
+                            <td>0.2</td>
+                            <td>0.4</td>
+                            <td>0.2</td>
+                            <td>0.1</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Value:</strong></p>
+                <p>E(X) = 0×0.1 + 1×0.2 + 2×0.4 + 3×0.2 + 4×0.1 = 0 + 0.2 + 0.8 + 0.6 + 0.4 = 2.0</p>
+                <p><strong>Variance:</strong></p>
+                <p>E(X²) = 0²×0.1 + 1²×0.2 + 2²×0.4 + 3²×0.2 + 4²×0.1 = 0 + 0.2 + 1.6 + 1.8 + 1.6 = 5.2</p>
+                <p>Var(X) = 5.2 - (2.0)² = 5.2 - 4.0 = 1.2</p>
+                <p>σ = √1.2 ≈ 1.10</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 3: Investment Returns (Medium)</h4>
+                <p><strong>Scenario:</strong> An investment has the following return distribution:</p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Return (%)</th>
+                            <th>-10</th>
+                            <th>0</th>
+                            <th>5</th>
+                            <th>15</th>
+                            <th>25</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.1</td>
+                            <td>0.2</td>
+                            <td>0.4</td>
+                            <td>0.2</td>
+                            <td>0.1</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Expected Return:</strong></p>
+                <p>E(X) = (-10)×0.1 + 0×0.2 + 5×0.4 + 15×0.2 + 25×0.1 = -1 + 0 + 2 + 3 + 2.5 = 6.5%</p>
+                <p><strong>Risk (Standard Deviation):</strong></p>
+                <p>E(X²) = 100×0.1 + 0×0.2 + 25×0.4 + 225×0.2 + 625×0.1 = 10 + 0 + 10 + 45 + 62.5 = 127.5</p>
+                <p>Var(X) = 127.5 - (6.5)² = 127.5 - 42.25 = 85.25</p>
+                <p>σ = √85.25 ≈ 9.23%</p>
+                <p><strong>Investment Insight:</strong> Expected return of 6.5% with a risk of 9.23%</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 4: Insurance Claims (Hard)</h4>
+                <p><strong>Scenario:</strong> Daily insurance claims at a company:</p>
+                <div class="table">
+                    <table class="table">
+                        <tr>
+                            <th>Claims</th>
+                            <th>0</th>
+                            <th>1</th>
+                            <th>2</th>
+                            <th>3</th>
+                            <th>4</th>
+                            <th>5+</th>
+                        </tr>
+                        <tr>
+                            <td>Probability</td>
+                            <td>0.05</td>
+                            <td>0.15</td>
+                            <td>0.30</td>
+                            <td>0.25</td>
+                            <td>0.15</td>
+                            <td>0.10</td>
+                        </tr>
+                    </table>
+                </div>
+                <p><strong>Note:</strong> For 5+ claims, we use expected value of 6</p>
+                <p><strong>Expected Claims:</strong></p>
+                <p>E(X) = 0×0.05 + 1×0.15 + 2×0.30 + 3×0.25 + 4×0.15 + 6×0.10 = 0 + 0.15 + 0.60 + 0.75 + 0.60 + 0.60 = 2.70</p>
+                <p><strong>Business Application:</strong> Company should expect about 2-3 claims per day on average</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 5: Manufacturing Quality (Hard)</h4>
+                <p><strong>Scenario:</strong> Number of defects per batch in a manufacturing process:</p>
+                <p>P(X = 0) = 0.4, P(X = 1) = 0.35, P(X = 2) = 0.15, P(X = 3) = 0.07, P(X = 4) = 0.03</p>
+                <p><strong>Cost Impact:</strong> Each defect costs $50 to fix</p>
+                <p><strong>Expected Defects:</strong></p>
+                <p>E(X) = 0×0.4 + 1×0.35 + 2×0.15 + 3×0.07 + 4×0.03 = 0 + 0.35 + 0.30 + 0.21 + 0.12 = 0.98</p>
+                <p><strong>Expected Cost per Batch:</strong> 0.98 × $50 = $49</p>
+                <p><strong>Variance:</strong></p>
+                <p>E(X²) = 0×0.4 + 1×0.35 + 4×0.15 + 9×0.07 + 16×0.03 = 0 + 0.35 + 0.60 + 0.63 + 0.48 = 2.06</p>
+                <p>Var(X) = 2.06 - (0.98)² = 2.06 - 0.96 = 1.10</p>
+                <p>σ = √1.10 ≈ 1.05</p>
+            </div>
+
+            <div class="calculator">
+                <h4>📊 Expected Value & Standard Deviation Calculator</h4>
+                <p>Enter values and probabilities (comma-separated):</p>
+                <div class="input-group">
+                    <label>Values:</label>
+                    <input type="text" id="valuesInput" placeholder="1, 2, 3, 4, 5, 6" style="width: 200px;">
+                </div>
+                <div class="input-group">
+                    <label>Probabilities:</label>
+                    <input type="text" id="probsInput" placeholder="1/6, 1/6, 1/6, 1/6, 1/6, 1/6" style="width: 250px;">
+                </div>
+                <button class="calc-btn" onclick="calculateExpectedValue()">Calculate</button>
+                <div id="expectedValueResult"></div>
+            </div>
+        </div>
+
+        <!-- Binomial Distribution Section -->
+        <div id="binomial" class="section">
+            <h2>🎯 Binomial Distribution</h2>
+
+            <div class="definition-box">
+                <h4>Definition: Binomial Distribution</h4>
+                <p>A <strong>binomial distribution</strong> models the number of successes in a fixed number of independent trials, where each trial has the same probability of success.</p>
+                <p><strong>Notation:</strong> X ~ Binomial(n, p) or X ~ B(n, p)</p>
+                <p><strong>Parameters:</strong></p>
+                <ul>
+                    <li><strong>n:</strong> Number of trials (fixed)</li>
+                    <li><strong>p:</strong> Probability of success in each trial (constant)</li>
+                    <li><strong>X:</strong> Number of successes (0, 1, 2, ..., n)</li>
+                </ul>
+            </div>
+
+            <div class="definition-box">
+                <h4>Binomial Probability Formula</h4>
+                <div class="formula">
+                    P(X = k) = C(n,k) × p^k × (1-p)^(n-k)
+                </div>
+                <p>Where:</p>
+                <ul>
+                    <li>C(n,k) = n!/(k!(n-k)!) is the binomial coefficient</li>
+                    <li>k = number of successes (0 ≤ k ≤ n)</li>
+                    <li>p = probability of success</li>
+                    <li>(1-p) = probability of failure</li>
+                </ul>
+            </div>
+
+            <div class="definition-box">
+                <h4>Binomial Distribution: Expected Value and Variance</h4>
+                <div class="formula">
+                    E(X) = μ = np
+                </div>
+                <div class="formula">
+                    Var(X) = σ² = np(1-p)
+                </div>
+                <div class="formula">
+                    σ = √(np(1-p))
+                </div>
+            </div>
+
+            <h3>Conditions for Binomial Distribution</h3>
+            <ol>
+                <li><strong>Fixed number of trials (n)</strong></li>
+                <li><strong>Each trial has two outcomes:</strong> success or failure</li>
+                <li><strong>Constant probability:</strong> P(success) = p for all trials</li>
+                <li><strong>Independence:</strong> Trials are independent of each other</li>
+            </ol>
+
+            <h3>Detailed Examples</h3>
+
+            <div class="example">
+                <h4>Example 1: Coin Flipping (Easy)</h4>
+                <p><strong>Scenario:</strong> Flip a fair coin 5 times. Find P(exactly 3 heads).</p>
+                <p><strong>Parameters:</strong> n = 5, p = 0.5, k = 3</p>
+                <p><strong>Solution:</strong></p>
+                <p>P(X = 3) = C(5,3) × (0.5)³ × (0.5)²</p>
+                <p>C(5,3) = 5!/(3!×2!) = (5×4)/(2×1) = 10</p>
+                <p>P(X = 3) = 10 × 0.125 × 0.25 = 10 × 0.03125 = 0.3125</p>
+                <p><strong>Answer:</strong> 31.25% chance of getting exactly 3 heads</p>
+                
+                <p><strong>Expected number of heads:</strong> E(X) = 5 × 0.5 = 2.5</p>
+                <p><strong>Standard deviation:</strong> σ = √(5 × 0.5 × 0.5) = √1.25 ≈ 1.12</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 2: Quality Control (Medium)</h4>
+                <p><strong>Scenario:</strong> A factory produces items with 5% defect rate. In a sample of 20 items, what's the probability of finding exactly 2 defective items?</p>
+                <p><strong>Parameters:</strong> n = 20, p = 0.05, k = 2</p>
+                <p><strong>Solution:</strong></p>
+                <p>P(X = 2) = C(20,2) × (0.05)² × (0.95)¹⁸</p>
+                <p>C(20,2) = 20!/(2!×18!) = (20×19)/2 = 190</p>
+                <p>P(X = 2) = 190 × 0.0025 × 0.3972 = 190 × 0.000993 = 0.1887</p>
+                <p><strong>Answer:</strong> 18.87% chance</p>
+                
+                <p><strong>Expected defects:</strong> E(X) = 20 × 0.05 = 1.0</p>
+                <p><strong>Standard deviation:</strong> σ = √(20 × 0.05 × 0.95) = √0.95 ≈ 0.97</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 3: Medical Treatment (Medium)</h4>
+                <p><strong>Scenario:</strong> A new drug has 70% success rate. If administered to 10 patients, what's the probability that exactly 8 patients recover?</p>
+                <p><strong>Parameters:</strong> n = 10, p = 0.7, k = 8</p>
+                <p><strong>Solution:</strong></p>
+                <p>P(X = 8) = C(10,8) × (0.7)⁸ × (0.3)²</p>
+                <p>C(10,8) = C(10,2) = 45</p>
+                <p>P(X = 8) = 45 × 0.0576 × 0.09 = 45 × 0.00518 = 0.2335</p>
+                <p><strong>Answer:</strong> 23.35% chance</p>
+                
+                <p><strong>Expected recoveries:</strong> E(X) = 10 × 0.7 = 7.0</p>
+                <p><strong>Most likely outcome:</strong> 7 patients recover</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 4: Marketing Campaign (Hard)</h4>
+                <p><strong>Scenario:</strong> An email marketing campaign has 15% response rate. If 100 emails are sent, find:</p>
+                <ol>
+                    <li>Expected number of responses</li>
+                    <li>Standard deviation</li>
+                    <li>Probability of getting at least 20 responses</li>
+                </ol>
+                <p><strong>Parameters:</strong> n = 100, p = 0.15</p>
+                <p><strong>Solutions:</strong></p>
+                <p>1. E(X) = np = 100 × 0.15 = 15 responses</p>
+                <p>2. σ = √(np(1-p)) = √(100 × 0.15 × 0.85) = √12.75 ≈ 3.57</p>
+                <p>3. P(X ≥ 20) = 1 - P(X ≤ 19) ≈ 0.0808 (using normal approximation)</p>
+                <p><strong>Business insight:</strong> Expect 15 ± 7 responses (within 2 standard deviations)</p>
+            </div>
+
+            <div class="example">
+                <h4>Example 5: Election Polling (Hard)</h4>
+                <p><strong>Scenario:</strong> In a poll, 60% support candidate A. If 50 voters are randomly selected, what's the probability that candidate A gets majority (>25 votes)?</p>
+                <p><strong>Parameters:</strong> n = 50, p = 0.6</p>
+                <p><strong>Analysis:</strong></p>
+                <p>Need P(X > 25) = P(X ≥ 26)</p>
+                <p>E(X) = 50 × 0.6 = 30</p>
+                <p>σ = √(50 × 0.6 × 0.4) = √12 ≈ 3.46</p>
+                <p>Using normal approximation: P(X ≥ 26) ≈ P(Z ≥ (25.5-30)/3.46) = P(Z ≥ -1.30) ≈ 0.9032</p>
+                <p><strong>Answer:</strong> About 90% chance of getting majority</p>
+            </div>
+
+            <div class="calculator">
+                <h4>🎲 Binomial Probability Calculator</h4>
+                <div class="input-group">
+                    <label>n (trials):</label>
+                    <input type="number" id="binomialN" value="10" min="1" max="100">
+                    <label>p (probability):</label>
+                    <input type="number" id="binomialP" value="0.5" min="0" max="1" step="0.01">
+                    <label>k (successes):</label>
+                    <input type="number" id="binomialK" value="5" min="0" max="100">
+                </div>
+                <button class="calc-btn" onclick="calculateBinomial()">Calculate P(X = k)</button>
+                <button class="calc-btn" onclick="calculateBinomialStats()">Calculate E(X) & σ</button>
+                <div id="binomialResult"></div>
+            </div>
+
+            <h3>Common Applications</h3>
+            <ul>
+                <li><strong>Quality Control:</strong> Number of defective items in a batch</li>
+                <li><strong>Medical Trials:</strong> Number of patients responding to treatment</li>
+                <li><strong>Marketing:</strong> Number of customers responding to campaigns</li>
+                <li><strong>Sports:</strong> Number of successful free throws, wins in a season</li>
+                <li><strong>Finance:</strong> Number of profitable trades, defaults in a portfolio</li>
+                <li><strong>Surveys:</strong> Number of people with certain opinions</li>
+            </ul>
+        </div>
+
+        <!-- Advanced Examples Section -->
+        <div id="examples" class="section">
+            <h2>🧠 Advanced Examples & Applications</h2>
+
+            <div class="example">
+                <h4>Advanced Example 1: Reliability Engineering</h4>
+                <p><strong>Scenario:</strong> A critical system has 5 backup components. Each component has 95% reliability. The system fails if more than 2 components fail. What's the system reliability?</p>
+                <p><strong>Parameters:</strong> n = 5, p = 0.05 (failure rate), system fails if X > 2</p>
+                <p><strong>Solution:</strong></p>
+                <p>System reliability = P(X ≤ 2) where X ~ Binomial(5, 0.05)</p>
+                <p>P(X = 0) = C(5,0) × (0.05)⁰ × (0.95)⁵ = 1 × 1 × 0.7738 = 0.7738</p>
+                <p>P(X = 1) = C(5,1) × (0.05)¹ × (0.95)⁴ = 5 × 0.05 × 0.8145 = 0.2036</p>
+                <p>P(X = 2) = C(5,2) × (0.05)² × (0.95)³ = 10 × 0.0025 × 0.8574 = 0.0214</p>
+                <p>System Reliability = 0.7738 + 0.2036 + 0.0214 = 0.9988 = 99.88%</p>
+                <p><strong>Engineering Insight:</strong> Redundancy dramatically improves system reliability</p>
+            </div>
+
+            <div class="example">
+                <h4>Advanced Example 2: Financial Risk Assessment</h4>
+                <p><strong>Scenario:</strong> A bank has 1000 loans, each with 2% default probability. Calculate the probability that defaults exceed 30.</p>
+                <p><strong>Parameters:</strong> n = 1000, p = 0.02</p>
+                <p><strong>Expected defaults:</strong> E(X) = 1000 × 0.02 = 20</p>
+                <p><strong>Standard deviation:</strong> σ = √(1000 × 0.02 × 0.98) = √19.6 ≈ 4.43</p>
+                <p><strong>Using Normal Approximation:</strong></p>
+                <p>P(X > 30) ≈ P(Z > (30.5 - 20)/4.43) = P(Z > 2.37) ≈ 0.0089</p>
+                <p><strong>Risk Assessment:</strong> Less than 1% chance of having more than 30 defaults</p>
+                <p><strong>Capital Requirement:</strong> Bank should prepare for 20 + 2×4.43 ≈ 29 defaults (95% confidence)</p>
+            </div>
+
+            <div class="example">
+                <h4>Advanced Example 3: Pharmaceutical Clinical Trial</h4>
+                <p><strong>Scenario:</strong> A new drug is tested on 200 patients. Historical success rate for existing drugs is 40%. The new drug shows 95 successes. Is it significantly better?</p>
+                <p><strong>Null Hypothesis:</strong> p = 0.40 (drug is no better than existing drugs)</p>
+                <p><strong>Observed:</strong> 95 successes out of 200 trials</p>
+                <p><strong>Under null hypothesis:</strong></p>
+                <p>E(X) = 200 × 0.4 = 80</p>
+                <p>σ = √(200 × 0.4 × 0.6) = √48 ≈ 6.93</p>
+                <p><strong>Z-score:</strong> Z = (95 - 80)/6.93 = 2.16</p>
+                <p><strong>P-value:</strong> P(Z > 2.16) ≈ 0.0154</p>
+                <p><strong>Conclusion:</strong> With p-value < 0.05, there's significant evidence the new drug is better</p>
+            </div>
+
+            <div class="example">
+                <h4>Advanced Example 4: Network Security</h4>
+                <p><strong>Scenario:</strong> A cybersecurity system detects 99% of attacks. In a day with 50 attack attempts, what's the probability that at least 2 attacks go undetected?</p>
+                <p><strong>Parameters:</strong> n = 50, p = 0.01 (miss rate)</p>
+                <p><strong>Solution:</strong></p>
+                <p>P(X ≥ 2) = 1 - P(X ≤ 1) = 1 - [P(X = 0) + P(X = 1)]</p>
+                <p>P(X = 0) = C(50,0) × (0.01)⁰ × (0.99)⁵⁰ = 1 × 1 × 0.6050 = 0.6050</p>
+                <p>P(X = 1) = C(50,1) × (0.01)¹ × (0.99)⁴⁹ = 50 × 0.01 × 0.6111 = 0.3056</p>
+                <p>P(X ≥ 2) = 1 - (0.6050 + 0.3056) = 1 - 0.9106 = 0.0894</p>
+                <p><strong>Security Assessment:</strong> 8.94% chance of 2+ undetected attacks</p>
+            </div>
+
+            <div class="example">
+                <h4>Advanced Example 5: Environmental Monitoring</h4>
+                <p><strong>Scenario:</strong> Air quality sensors have 98% accuracy. With 100 sensors, if 5 show pollution alerts, what's the probability this is due to sensor errors (assuming no actual pollution)?</p>
+                <p><strong>Parameters:</strong> n = 100, p = 0.02 (false positive rate)</p>
+                <p><strong>Question:</strong> P(X ≥ 5) where X ~ Binomial(100, 0.02)</p>
+                <p><strong>Expected false positives:</strong> E(X) = 100 × 0.02 = 2</p>
+                <p><strong>Using Poisson approximation (np = 2):</strong></p>
+                <p>P(X ≥ 5) ≈ 1 - P(Y ≤ 4) where Y ~ Poisson(2)</p>
+                <p>P(X ≥ 5) ≈ 1 - 0.9473 = 0.0527</p>
+                <p><strong>Environmental Decision:</strong> Only 5.27% chance this is due to sensor errors - likely real pollution</p>
+            </div>
+
+            <div class="calculator">
+                <h4>🔬 Advanced Binomial Analysis</h4>
+                <div class="input-group">
+                    <label>n:</label>
+                    <input type="number" id="advN" value="100" min="1" max="10000">
+                    <label>p:</label>
+                    <input type="number" id="advP" value="0.05" min="0" max="1" step="0.001">
+                    <label>k (for P(X ≥ k)):</label>
+                    <input type="number" id="advK" value="10" min="0">
+                </div>
+                <button class="calc-btn" onclick="advancedBinomialAnalysis()">Analyze</button>
+                <div id="advancedResult"></div>
+            </div>
+        </div>
+
+        <!-- Practice Exercises Section -->
+        <div id="exercises" class="section">
+            <h2>📝 Practice Exercises</h2>
+
+            <div class="exercise">
+                <h4>Exercise 1: Basic Discrete Distribution</h4>
+                <p>A basketball player makes 70% of free throws. In 8 attempts:</p>
+                <ol>
+                    <li>What's the probability of making exactly 6 shots?</li>
+                    <li>What's the expected number of successful shots?</li>
+                    <li>What's the standard deviation?</li>
+                </ol>
+                <button class="calc-btn" onclick="showSolution(1)">Show Solution</button>
+                <div id="solution1" style="display: none;">
+                    <p><strong>Solution:</strong></p>
+                    <p>This is binomial with n=8, p=0.7</p>
+                    <p>1. P(X=6) = C(8,6) × (0.7)⁶ × (0.3)² = 28 × 0.1176 × 0.09 = 0.2965</p>
+                    <p>2. E(X) = np = 8 × 0.7 = 5.6 shots</p>
+                    <p>3. σ = √(np(1-p)) = √(8 × 0.7 × 0.3) = √1.68 ≈ 1.30</p>
+                </div>
+            </div>
+
+            <div class="exercise">
+                <h4>Exercise 2: Quality Control</h4>
+                <p>A production line produces 3% defective items. In a sample of 50 items:</p>
+                <ol>
+                    <li>What's the probability of finding no defective items?</li>
+                    <li>What's the probability of finding more than 2 defective items?</li>
+                    <li>What's the most likely number of defective items?</li>
+                </ol>
+                <button class="calc-btn" onclick="showSolution(2)">Show Solution</button>
+                <div id="solution2" style="display: none;">
+                    <p><strong>Solution:</strong></p>
+                    <p>Binomial with n=50, p=0.03</p>
+                    <p>1. P(X=0) = (0.97)⁵⁰ ≈ 0.2181</p>
+                    <p>2. P(X>2) = 1 - P(X≤2) ≈ 1 - 0.8108 = 0.1892</p>
+                    <p>3. E(X) = 50 × 0.03 = 1.5, so most likely is 1 or 2 defective items</p>
+                </div>
+            </div>
+
+            <div class="exercise">
+                <h4>Exercise 3: Medical Treatment</h4>
+                <p>A medical treatment has 85% success rate. For 12 patients:</p>
+                <ol>
+                    <li>What's the probability all patients recover?</li>
+                    <li>What's the probability at least 10 patients recover?</li>
+                    <li>Find the 95% confidence interval for the number of recoveries</li>
+                </ol>
+                <button class="calc-btn" onclick="showSolution(3)">Show Solution</button>
+                <div id="solution3" style="display: none;">
+                    <p><strong>Solution:</strong></p>
+                    <p>Binomial with n=12, p=0.85</p>
+                    <p>1. P(X=12) = (0.85)¹² ≈ 0.1422</p>
+                    <p>2. P(X≥10) = P(X=10) + P(X=11) + P(X=12) ≈ 0.5565</p>
+                    <p>3. E(X) = 10.2, σ = 1.24, 95% CI: 10.2 ± 1.96×1.24 = [7.77, 12.63]</p>
+                </div>
+            </div>
+
+            <div class="exercise">
+                <h4>Exercise 4: Survey Research</h4>
+                <p>In a political poll, 45% support a candidate. In a sample of 80 voters:</p>
+                <ol>
+                    <li>What's the expected number of supporters?</li>
+                    <li>What's the probability of getting exactly 40 supporters?</li>
+                    <li>What range contains 90% of possible outcomes?</li>
+                </ol>
+                <button class="calc-btn" onclick="showSolution(4)">Show Solution</button>
+                <div id="solution4" style="display: none;">
+                    <p><strong>Solution:</strong></p>
+                    <p>Binomial with n=80, p=0.45</p>
+                    <p>1. E(X) = 80 × 0.45 = 36 supporters</p>
+                    <p>2. Using normal approximation: P(X=40) ≈ 0.0559</p>
+                    <p>3. σ = 4.45, 90% range: 36 ± 1.645×4.45 = [28.7, 43.3]</p>
+                </div>
+            </div>
+
+            <div class="exercise">
+                <h4>Exercise 5: Network Reliability</h4>
+                <p>A network has 6 redundant paths. Each path has 90% reliability. System works if at least 4 paths work:</p>
+                <ol>
+                    <li>What's the system reliability?</li>
+                    <li>How many paths are expected to work?</li>
+                    <li>What's the probability exactly 5 paths work?</li>
+                </ol>
+                <button class="calc-btn" onclick="showSolution(5)">Show Solution</button>
+                <div id="solution5" style="display: none;">
+                    <p><strong>Solution:</strong></p>
+                    <p>Binomial with n=6, p=0.9</p>
+                    <p>1. System reliability = P(X≥4) = 1 - P(X≤3) ≈ 0.9930</p>
+                    <p>2. E(X) = 6 × 0.9 = 5.4 paths</p>
+                    <p>3. P(X=5) = C(6,5) × (0.9)⁵ × (0.1)¹ ≈ 0.3543</p>
+                </div>
+            </div>
+
+            <div class="calculator">
+                <h4>🧮 Exercise Helper Calculator</h4>
+                <p>Use this calculator to check your work on the exercises:</p>
+                <div class="input-group">
+                    <label>n:</label>
+                    <input type="number" id="exerciseN" value="10">
+                    <label>p:</label>
+                    <input type="number" id="exerciseP" value="0.5" step="0.01">
+                    <label>k:</label>
+                    <input type="number" id="exerciseK" value="5">
+                </div>
+                <button class="calc-btn" onclick="calculateExercise()">Calculate</button>
+                <div id="exerciseResult"></div>
+            </div>
+        </div>
+
+        <!-- Computer Lab Section -->
+        <div id="lab" class="section">
+            <h2>💻 Weekly Computer Lab: Binomial Probabilities</h2>
+
+            <div class="lab-section">
+                <h4>Lab Objective</h4>
+                <p>Master binomial probability calculations through hands-on computational practice. This lab simulates real-world scenarios where you'll apply binomial distribution concepts.</p>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 1: Simulation vs Theory</h4>
+                <p><strong>Task:</strong> Compare theoretical binomial probabilities with simulation results</p>
+                <div class="input-group">
+                    <label>Trials (n):</label>
+                    <input type="number" id="simN" value="10" min="1" max="50">
+                    <label>Probability (p):</label>
+                    <input type="number" id="simP" value="0.3" min="0" max="1" step="0.01">
+                    <label>Simulations:</label>
+                    <input type="number" id="simCount" value="1000" min="100" max="10000">
+                </div>
+                <button class="calc-btn" onclick="runSimulation()">Run Simulation</button>
+                <div id="simulationResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 2: Probability Distribution Analysis</h4>
+                <p><strong>Task:</strong> Generate and analyze complete probability distributions</p>
+                <div class="input-group">
+                    <label>n:</label>
+                    <input type="number" id="distN" value="15" min="1" max="30">
+                    <label>p:</label>
+                    <input type="number" id="distP" value="0.4" min="0" max="1" step="0.01">
+                </div>
+                <button class="calc-btn" onclick="generateDistribution()">Generate Distribution</button>
+                <div id="distributionResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 3: Real-World Application</h4>
+                <p><strong>Scenario:</strong> Quality Control in Manufacturing</p>
+                <p>A factory produces electronic components with a 2% defect rate. You're quality control manager analyzing daily production batches.</p>
+                
+                <h4>Investigation Questions:</h4>
+                <ol>
+                    <li>In batches of 100 items, what's the probability of finding 0, 1, 2, 3+ defects?</li>
+                    <li>What batch size gives 95% probability of at least one defect?</li>
+                    <li>If you find 5 defects in a batch of 100, is the process out of control?</li>
+                </ol>
+
+                <div class="input-group">
+                    <label>Batch Size:</label>
+                    <input type="number" id="qcBatch" value="100" min="10" max="500">
+                    <label>Defect Rate:</label>
+                    <input type="number" id="qcRate" value="0.02" min="0.001" max="0.1" step="0.001">
+                </div>
+                <button class="calc-btn" onclick="qualityControlAnalysis()">Analyze QC Process</button>
+                <div id="qcResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 4: Hypothesis Testing</h4>
+                <p><strong>Scenario:</strong> Testing a New Marketing Strategy</p>
+                <p>Current email campaign has 12% response rate. New strategy shows 28 responses from 200 emails. Is it significantly better?</p>
+                
+                <div class="input-group">
+                    <label>Sample Size:</label>
+                    <input type="number" id="htN" value="200" min="50" max="1000">
+                    <label>Null Hypothesis p:</label>
+                    <input type="number" id="htP0" value="0.12" min="0.01" max="0.5" step="0.01">
+                    <label>Observed Successes:</label>
+                    <input type="number" id="htObs" value="28" min="0">
+                </div>
+                <button class="calc-btn" onclick="hypothesisTest()">Test Hypothesis</button>
+                <div id="htResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 5: Risk Assessment Model</h4>
+                <p><strong>Scenario:</strong> Insurance Portfolio Analysis</p>
+                <p>Model the probability of multiple claims in an insurance portfolio</p>
+                
+                <div class="input-group">
+                    <label>Policies:</label>
+                    <input type="number" id="insPolicies" value="1000" min="100" max="5000">
+                    <label>Claim Probability:</label>
+                    <input type="number" id="insProb" value="0.05" min="0.01" max="0.2" step="0.001">
+                    <label>Risk Threshold:</label>
+                    <input type="number" id="insThreshold" value="70" min="10">
+                </div>
+                <button class="calc-btn" onclick="insuranceRiskAnalysis()">Analyze Risk</button>
+                <div id="insResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 6: Gambling Simulation - House Edge Demonstration</h4>
+                <p><strong>Objective:</strong> Demonstrate why gambling always leads to losses over time through simulation</p>
+                
+                <p><strong>Scenario:</strong> Simulate roulette betting over multiple rounds</p>
+                <div class="input-group">
+                    <label>Bet Amount ($):</label>
+                    <input type="number" id="betAmount" value="10" min="1" max="100">
+                    <label>Number of Rounds:</label>
+                    <input type="number" id="numRounds" value="100" min="10" max="1000">
+                    <label>Bet Type:</label>
+                    <select id="betType">
+                        <option value="red">Red (18/38 chance)</option>
+                        <option value="number">Single Number (1/38 chance)</option>
+                        <option value="dozen">Dozen (12/38 chance)</option>
+                    </select>
+                </div>
+                <button class="calc-btn" onclick="simulateGambling()">Run Gambling Simulation</button>
+                <div id="gamblingResult"></div>
+                
+                <p><strong>Learning Questions:</strong></p>
+                <ol>
+                    <li>What happens to your money as you play more rounds?</li>
+                    <li>How does the house edge affect your long-term results?</li>
+                    <li>Why do casinos always profit in the long run?</li>
+                </ol>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab 7: Investment Comparison Tool</h4>
+                <p><strong>Objective:</strong> Use expected value to compare investment opportunities</p>
+                
+                <p><strong>Compare two investment options:</strong></p>
+                
+                <h4>Investment Option A:</h4>
+                <div class="input-group">
+                    <label>Returns (%):</label>
+                    <input type="text" id="returnsA" value="-5, 5, 10, 15" placeholder="comma-separated">
+                    <label>Probabilities:</label>
+                    <input type="text" id="probsA" value="0.1, 0.3, 0.4, 0.2" placeholder="comma-separated">
+                </div>
+                
+                <h4>Investment Option B:</h4>
+                <div class="input-group">
+                    <label>Returns (%):</label>
+                    <input type="text" id="returnsB" value="-10, 0, 20, 30" placeholder="comma-separated">
+                    <label>Probabilities:</label>
+                    <input type="text" id="probsB" value="0.15, 0.25, 0.45, 0.15" placeholder="comma-separated">
+                </div>
+                
+                <div class="input-group">
+                    <label>Investment Amount ($):</label>
+                    <input type="number" id="investmentAmount" value="10000" min="1000" max="1000000">
+                </div>
+                
+                <button class="calc-btn" onclick="compareInvestments()">Compare Investments</button>
+                <div id="investmentResult"></div>
+            </div>
+
+            <div class="lab-section">
+                <h4>Lab Report Template</h4>
+                <div class="exercise">
+                    <h4>Weekly Lab Report</h4>
+                    <p><strong>Instructions:</strong> Complete all 7 labs and summarize your findings:</p>
+                    <ol>
+                        <li><strong>Lab 1 Results:</strong> How close were simulations to theory?</li>
+                        <li><strong>Lab 2 Analysis:</strong> Describe the shape of your distribution</li>
+                        <li><strong>Lab 3 Insights:</strong> What did you learn about quality control?</li>
+                        <li><strong>Lab 4 Conclusion:</strong> Was the new strategy significantly better?</li>
+                        <li><strong>Lab 5 Risk Assessment:</strong> What's your recommendation for the insurance portfolio?</li>
+                        <li><strong>Lab 6 Gambling Analysis:</strong> What did the gambling simulation teach you about expected value?</li>
+                        <li><strong>Lab 7 Investment Decision:</strong> How does expected value help in making investment choices?</li>
+                    </ol>
+                    <p><strong>Critical Thinking Questions:</strong></p>
+                    <ul>
+                        <li>Why do casinos always profit despite some players winning?</li>
+                        <li>How can expected value guide business and personal financial decisions?</li>
+                        <li>What's the relationship between risk and expected return in investments?</li>
+                    </ul>
+                    <p><strong>Reflection:</strong> How do discrete probability distributions and expected value help in real-world decision-making?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz" class="section">
+            <h2>🎓 Comprehensive Quiz</h2>
+
+            <div class="quiz-container">
+                <div class="question" data-question="1">
+                    <h4>Question 1: Which of the following is NOT a requirement for a binomial distribution?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(1, 1)">A) Fixed number of trials</li>
+                        <li onclick="selectAnswer(1, 2)">B) Each trial has only two outcomes</li>
+                        <li onclick="selectAnswer(1, 3)">C) Probability of success varies between trials</li>
+                        <li onclick="selectAnswer(1, 4)">D) Trials are independent</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="2">
+                    <h4>Question 2: If X ~ Binomial(20, 0.3), what is E(X)?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(2, 1)">A) 6</li>
+                        <li onclick="selectAnswer(2, 2)">B) 4.2</li>
+                        <li onclick="selectAnswer(2, 3)">C) 14</li>
+                        <li onclick="selectAnswer(2, 4)">D) 20</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="3">
+                    <h4>Question 3: For a discrete probability distribution, the sum of all probabilities must equal:</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(3, 1)">A) 0</li>
+                        <li onclick="selectAnswer(3, 2)">B) 1</li>
+                        <li onclick="selectAnswer(3, 3)">C) 100</li>
+                        <li onclick="selectAnswer(3, 4)">D) The number of outcomes</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="4">
+                    <h4>Question 4: If X ~ Binomial(10, 0.4), what is Var(X)?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(4, 1)">A) 4</li>
+                        <li onclick="selectAnswer(4, 2)">B) 2.4</li>
+                        <li onclick="selectAnswer(4, 3)">C) 1.55</li>
+                        <li onclick="selectAnswer(4, 4)">D) 6</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="5">
+                    <h4>Question 5: A coin is flipped 8 times. What's P(exactly 3 heads)?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(5, 1)">A) 0.125</li>
+                        <li onclick="selectAnswer(5, 2)">B) 0.375</li>
+                        <li onclick="selectAnswer(5, 3)">C) 0.219</li>
+                        <li onclick="selectAnswer(5, 4)">D) 0.273</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="6">
+                    <h4>Question 6: Which statement about expected value is FALSE?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(6, 1)">A) E(X + c) = E(X) + c</li>
+                        <li onclick="selectAnswer(6, 2)">B) E(cX) = c·E(X)</li>
+                        <li onclick="selectAnswer(6, 3)">C) E(X²) = [E(X)]²</li>
+                        <li onclick="selectAnswer(6, 4)">D) E(X + Y) = E(X) + E(Y)</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="7">
+                    <h4>Question 7: A factory has 5% defect rate. In 40 items, what's the expected number of defects?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(7, 1)">A) 1</li>
+                        <li onclick="selectAnswer(7, 2)">B) 2</li>
+                        <li onclick="selectAnswer(7, 3)">C) 5</li>
+                        <li onclick="selectAnswer(7, 4)">D) 8</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="8">
+                    <h4>Question 8: If X follows binomial distribution with μ = 12 and σ² = 3.6, what are n and p?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(8, 1)">A) n = 15, p = 0.8</li>
+                        <li onclick="selectAnswer(8, 2)">B) n = 20, p = 0.6</li>
+                        <li onclick="selectAnswer(8, 3)">C) n = 40, p = 0.3</li>
+                        <li onclick="selectAnswer(8, 4)">D) n = 60, p = 0.2</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="9">
+                    <h4>Question 9: Standard deviation of binomial distribution is given by:</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(9, 1)">A) √(np)</li>
+                        <li onclick="selectAnswer(9, 2)">B) np(1-p)</li>
+                        <li onclick="selectAnswer(9, 3)">C) √(np(1-p))</li>
+                        <li onclick="selectAnswer(9, 4)">D) n(1-p)</li>
+                    </ul>
+                </div>
+
+                <div class="question" data-question="10">
+                    <h4>Question 10: A drug has 80% success rate. For 6 patients, what's P(at least 5 successes)?</h4>
+                    <ul class="options">
+                        <li onclick="selectAnswer(10, 1)">A) 0.262</li>
+                        <li onclick="selectAnswer(10, 2)">B) 0.345</li>
+                        <li onclick="selectAnswer(10, 3)">C) 0.655</li>
+                        <li onclick="selectAnswer(10, 4)">D) 0.738</li>
+                    </ul>
+                </div>
+
+                <button class="quiz-btn" onclick="checkQuizAnswers()">Check Answers</button>
+                <button class="quiz-btn" onclick="resetQuiz()">Reset Quiz</button>
+                <div id="quizScore"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentSection = 'overview';
+        let quizAnswers = {
+            1: 3, 2: 1, 3: 2, 4: 2, 5: 3, 
+            6: 3, 7: 2, 8: 1, 9: 3, 10: 3
+        };
+        let userAnswers = {};
+
+        // Navigation functions
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation buttons
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update progress
+            updateProgress(sectionId);
+            currentSection = sectionId;
+        }
+
+        function updateProgress(sectionId) {
+            const sections = ['overview', 'discrete-prob', 'expected-value', 'binomial', 'examples', 'exercises', 'lab', 'quiz'];
+            const currentIndex = sections.indexOf(sectionId);
+            const progress = ((currentIndex + 1) / sections.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Mathematical functions
+        function factorial(n) {
+            if (n <= 1) return 1;
+            return n * factorial(n - 1);
+        }
+
+        function combination(n, k) {
+            if (k > n) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        function binomialProbability(n, k, p) {
+            return combination(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k);
+        }
+
+        function binomialExpectedValue(n, p) {
+            return n * p;
+        }
+
+        function binomialVariance(n, p) {
+            return n * p * (1 - p);
+        }
+
+        function binomialStandardDeviation(n, p) {
+            return Math.sqrt(binomialVariance(n, p));
+        }
+
+        // Calculator functions
+        function calculateCustomDistribution() {
+            const valuesInput = document.getElementById('customValues').value;
+            const probsInput = document.getElementById('customProbs').value;
+            const payoffsInput = document.getElementById('customPayoffs').value;
+            
+            const values = valuesInput.split(',').map(v => parseFloat(v.trim()));
+            const probabilities = probsInput.split(',').map(p => parseFloat(p.trim()));
+            
+            let payoffs = [];
+            if (payoffsInput.trim()) {
+                payoffs = payoffsInput.split(',').map(p => parseFloat(p.trim()));
+            } else {
+                payoffs = values; // Use values as payoffs if not specified
+            }
+
+            if (values.length !== probabilities.length || values.length !== payoffs.length) {
+                document.getElementById('customDistributionResult').innerHTML = `
+                    <div class="result">Error: All arrays must have the same length.</div>
+                `;
+                return;
+            }
+
+            // Validate probabilities
+            const sum = probabilities.reduce((a, b) => a + b, 0);
+            if (Math.abs(sum - 1) > 0.001) {
+                document.getElementById('customDistributionResult').innerHTML = `
+                    <div class="result">Error: Probabilities must sum to 1. Current sum: ${sum.toFixed(3)}</div>
+                `;
+                return;
+            }
+
+            // Calculate expected values
+            let expectedValue = 0;
+            let expectedPayoff = 0;
+            let expectedValueSquared = 0;
+            
+            for (let i = 0; i < values.length; i++) {
+                expectedValue += values[i] * probabilities[i];
+                expectedPayoff += payoffs[i] * probabilities[i];
+                expectedValueSquared += values[i] * values[i] * probabilities[i];
+            }
+
+            const variance = expectedValueSquared - expectedValue * expectedValue;
+            const standardDeviation = Math.sqrt(variance);
+
+            document.getElementById('customDistributionResult').innerHTML = `
+                <div class="result">
+                    <h4>Distribution Analysis Results</h4>
+                    <strong>Expected Value E(X):</strong> ${expectedValue.toFixed(4)}<br>
+                    <strong>Expected Payoff E(Payoff):</strong> ${expectedPayoff.toFixed(2)}<br>
+                    <strong>Variance Var(X):</strong> ${variance.toFixed(4)}<br>
+                    <strong>Standard Deviation σ:</strong> ${standardDeviation.toFixed(4)}<br>
+                    <strong>Distribution Valid:</strong> ✅ Probabilities sum to 1.000
+                </div>
+            `;
+        }
+
+        function calculateExpectedValue() {
+            const valuesInput = document.getElementById('valuesInput').value;
+            const probsInput = document.getElementById('probsInput').value;
+            
+            const values = valuesInput.split(',').map(v => parseFloat(v.trim()));
+            const probabilities = probsInput.split(',').map(p => {
+                const prob = p.trim();
+                if (prob.includes('/')) {
+                    const [num, den] = prob.split('/');
+                    return parseFloat(num) / parseFloat(den);
+                }
+                return parseFloat(prob);
+            });
+
+            if (values.length !== probabilities.length) {
+                document.getElementById('expectedValueResult').innerHTML = `
+                    <div class="result">Error: Number of values and probabilities must match.</div>
+                `;
+                return;
+            }
+
+            let expectedValue = 0;
+            let expectedValueSquared = 0;
+            
+            for (let i = 0; i < values.length; i++) {
+                expectedValue += values[i] * probabilities[i];
+                expectedValueSquared += values[i] * values[i] * probabilities[i];
+            }
+
+            const variance = expectedValueSquared - expectedValue * expectedValue;
+            const standardDeviation = Math.sqrt(variance);
+
+            document.getElementById('expectedValueResult').innerHTML = `
+                <div class="result">
+                    <strong>Expected Value (μ):</strong> ${expectedValue.toFixed(4)}<br>
+                    <strong>Variance (σ²):</strong> ${variance.toFixed(4)}<br>
+                    <strong>Standard Deviation (σ):</strong> ${standardDeviation.toFixed(4)}
+                </div>
+            `;
+        }
+
+        function calculateBinomial() {
+            const n = parseInt(document.getElementById('binomialN').value);
+            const p = parseFloat(document.getElementById('binomialP').value);
+            const k = parseInt(document.getElementById('binomialK').value);
+
+            if (k > n) {
+                document.getElementById('binomialResult').innerHTML = `
+                    <div class="result">Error: k cannot be greater than n.</div>
+                `;
+                return;
+            }
+
+            const probability = binomialProbability(n, k, p);
+
+            document.getElementById('binomialResult').innerHTML = `
+                <div class="result">
+                    <strong>P(X = ${k}):</strong> ${probability.toFixed(6)}<br>
+                    <strong>Percentage:</strong> ${(probability * 100).toFixed(4)}%
+                </div>
+            `;
+        }
+
+        function calculateBinomialStats() {
+            const n = parseInt(document.getElementById('binomialN').value);
+            const p = parseFloat(document.getElementById('binomialP').value);
+
+            const expectedValue = binomialExpectedValue(n, p);
+            const variance = binomialVariance(n, p);
+            const standardDeviation = binomialStandardDeviation(n, p);
+
+            document.getElementById('binomialResult').innerHTML = `
+                <div class="result">
+                    <strong>Expected Value E(X):</strong> ${expectedValue.toFixed(4)}<br>
+                    <strong>Variance Var(X):</strong> ${variance.toFixed(4)}<br>
+                    <strong>Standard Deviation σ:</strong> ${standardDeviation.toFixed(4)}
+                </div>
+            `;
+        }
+
+        function advancedBinomialAnalysis() {
+            const n = parseInt(document.getElementById('advN').value);
+            const p = parseFloat(document.getElementById('advP').value);
+            const k = parseInt(document.getElementById('advK').value);
+
+            const expectedValue = n * p;
+            const standardDeviation = Math.sqrt(n * p * (1 - p));
+
+            // Calculate P(X >= k) using normal approximation for large n
+            let probability;
+            if (n > 30 && n * p > 5 && n * (1 - p) > 5) {
+                const z = (k - 0.5 - expectedValue) / standardDeviation;
+                probability = 1 - normalCDF(z);
+            } else {
+                // Exact calculation for smaller n
+                probability = 0;
+                for (let i = k; i <= n; i++) {
+                    probability += binomialProbability(n, i, p);
+                }
+            }
+
+            document.getElementById('advancedResult').innerHTML = `
+                <div class="result">
+                    <strong>Parameters:</strong> n = ${n}, p = ${p}<br>
+                    <strong>Expected Value:</strong> ${expectedValue.toFixed(2)}<br>
+                    <strong>Standard Deviation:</strong> ${standardDeviation.toFixed(2)}<br>
+                    <strong>P(X ≥ ${k}):</strong> ${probability.toFixed(6)}<br>
+                    <strong>Interpretation:</strong> ${(probability * 100).toFixed(2)}% chance of ${k} or more successes
+                </div>
+            `;
+        }
+
+        // Normal CDF approximation
+        function normalCDF(z) {
+            return 0.5 * (1 + erf(z / Math.sqrt(2)));
+        }
+
+        function erf(x) {
+            const a1 =  0.254829592;
+            const a2 = -0.284496736;
+            const a3 =  1.421413741;
+            const a4 = -1.453152027;
+            const a5 =  1.061405429;
+            const p  =  0.3275911;
+
+            const sign = x >= 0 ? 1 : -1;
+            x = Math.abs(x);
+
+            const t = 1.0 / (1.0 + p * x);
+            const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+
+            return sign * y;
+        }
+
+        // Exercise functions
+        function showSolution(exerciseNumber) {
+            const solutionDiv = document.getElementById('solution' + exerciseNumber);
+            solutionDiv.style.display = solutionDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function calculateExercise() {
+            const n = parseInt(document.getElementById('exerciseN').value);
+            const p = parseFloat(document.getElementById('exerciseP').value);
+            const k = parseInt(document.getElementById('exerciseK').value);
+
+            const exactProb = binomialProbability(n, k, p);
+            const expectedValue = n * p;
+            const standardDeviation = Math.sqrt(n * p * (1 - p));
+
+            document.getElementById('exerciseResult').innerHTML = `
+                <div class="result">
+                    <strong>P(X = ${k}):</strong> ${exactProb.toFixed(6)}<br>
+                    <strong>Expected Value:</strong> ${expectedValue.toFixed(2)}<br>
+                    <strong>Standard Deviation:</strong> ${standardDeviation.toFixed(2)}
+                </div>
+            `;
+        }
+
+        // Lab functions
+        function runSimulation() {
+            const n = parseInt(document.getElementById('simN').value);
+            const p = parseFloat(document.getElementById('simP').value);
+            const simCount = parseInt(document.getElementById('simCount').value);
+
+            // Theoretical values
+            const theoreticalMean = n * p;
+            const theoreticalStd = Math.sqrt(n * p * (1 - p));
+
+            // Run simulation
+            let outcomes = [];
+            for (let i = 0; i < simCount; i++) {
+                let successes = 0;
+                for (let j = 0; j < n; j++) {
+                    if (Math.random() < p) successes++;
+                }
+                outcomes.push(successes);
+            }
+
+            // Calculate simulation statistics
+            const simMean = outcomes.reduce((sum, val) => sum + val, 0) / simCount;
+            const simVariance = outcomes.reduce((sum, val) => sum + (val - simMean) ** 2, 0) / simCount;
+            const simStd = Math.sqrt(simVariance);
+
+            document.getElementById('simulationResult').innerHTML = `
+                <div class="result">
+                    <h4>Simulation Results vs Theory</h4>
+                    <strong>Theoretical Mean:</strong> ${theoreticalMean.toFixed(3)} | <strong>Simulated Mean:</strong> ${simMean.toFixed(3)}<br>
+                    <strong>Theoretical Std:</strong> ${theoreticalStd.toFixed(3)} | <strong>Simulated Std:</strong> ${simStd.toFixed(3)}<br>
+                    <strong>Error in Mean:</strong> ${Math.abs(theoreticalMean - simMean).toFixed(3)}<br>
+                    <strong>Error in Std:</strong> ${Math.abs(theoreticalStd - simStd).toFixed(3)}
+                </div>
+            `;
+        }
+
+        function generateDistribution() {
+            const n = parseInt(document.getElementById('distN').value);
+            const p = parseFloat(document.getElementById('distP').value);
+
+            let tableHTML = '<table class="table"><tr><th>k</th><th>P(X = k)</th><th>Cumulative P(X ≤ k)</th></tr>';
+            let cumulative = 0;
+
+            for (let k = 0; k <= n; k++) {
+                const prob = binomialProbability(n, k, p);
+                cumulative += prob;
+                tableHTML += `<tr><td>${k}</td><td>${prob.toFixed(6)}</td><td>${cumulative.toFixed(6)}</td></tr>`;
+            }
+            tableHTML += '</table>';
+
+            const mean = n * p;
+            const std = Math.sqrt(n * p * (1 - p));
+
+            document.getElementById('distributionResult').innerHTML = `
+                <div class="result">
+                    <h4>Complete Probability Distribution</h4>
+                    <strong>Parameters:</strong> n = ${n}, p = ${p}<br>
+                    <strong>Mean:</strong> ${mean.toFixed(2)}, <strong>Std Dev:</strong> ${std.toFixed(2)}<br>
+                    ${tableHTML}
+                </div>
+            `;
+        }
+
+        function qualityControlAnalysis() {
+            const batchSize = parseInt(document.getElementById('qcBatch').value);
+            const defectRate = parseFloat(document.getElementById('qcRate').value);
+
+            const p0 = binomialProbability(batchSize, 0, defectRate);
+            const p1 = binomialProbability(batchSize, 1, defectRate);
+            const p2 = binomialProbability(batchSize, 2, defectRate);
+            const p3plus = 1 - p0 - p1 - p2;
+
+            const expectedDefects = batchSize * defectRate;
+            const stdDefects = Math.sqrt(batchSize * defectRate * (1 - defectRate));
+
+            // Control limits (3-sigma)
+            const ucl = expectedDefects + 3 * stdDefects;
+            const lcl = Math.max(0, expectedDefects - 3 * stdDefects);
+
+            document.getElementById('qcResult').innerHTML = `
+                <div class="result">
+                    <h4>Quality Control Analysis</h4>
+                    <strong>Batch Size:</strong> ${batchSize}, <strong>Defect Rate:</strong> ${(defectRate * 100).toFixed(1)}%<br>
+                    <strong>P(0 defects):</strong> ${(p0 * 100).toFixed(2)}%<br>
+                    <strong>P(1 defect):</strong> ${(p1 * 100).toFixed(2)}%<br>
+                    <strong>P(2 defects):</strong> ${(p2 * 100).toFixed(2)}%<br>
+                    <strong>P(3+ defects):</strong> ${(p3plus * 100).toFixed(2)}%<br>
+                    <strong>Expected Defects:</strong> ${expectedDefects.toFixed(2)}<br>
+                    <strong>Control Limits:</strong> ${lcl.toFixed(2)} - ${ucl.toFixed(2)}<br>
+                    <strong>Process Control:</strong> ${ucl < 5 ? 'In Control' : 'Monitor Closely'}
+                </div>
+            `;
+        }
+
+        function hypothesisTest() {
+            const n = parseInt(document.getElementById('htN').value);
+            const p0 = parseFloat(document.getElementById('htP0').value);
+            const observed = parseInt(document.getElementById('htObs').value);
+
+            const expectedUnderNull = n * p0;
+            const stdUnderNull = Math.sqrt(n * p0 * (1 - p0));
+            const zScore = (observed - expectedUnderNull) / stdUnderNull;
+            const pValue = 1 - normalCDF(zScore);
+
+            const isSignificant = pValue < 0.05;
+
+            document.getElementById('htResult').innerHTML = `
+                <div class="result">
+                    <h4>Hypothesis Test Results</h4>
+                    <strong>Null Hypothesis:</strong> p = ${p0}<br>
+                    <strong>Sample:</strong> ${observed} successes out of ${n} trials<br>
+                    <strong>Expected under H₀:</strong> ${expectedUnderNull.toFixed(2)}<br>
+                    <strong>Z-score:</strong> ${zScore.toFixed(3)}<br>
+                    <strong>P-value:</strong> ${pValue.toFixed(4)}<br>
+                    <strong>Conclusion (α = 0.05):</strong> ${isSignificant ? 'Reject H₀ - Significant improvement!' : 'Fail to reject H₀ - No significant difference'}<br>
+                    <strong>Practical significance:</strong> ${((observed / n - p0) * 100).toFixed(1)}% improvement
+                </div>
+            `;
+        }
+
+        function insuranceRiskAnalysis() {
+            const policies = parseInt(document.getElementById('insPolicies').value);
+            const claimProb = parseFloat(document.getElementById('insProb').value);
+            const threshold = parseInt(document.getElementById('insThreshold').value);
+
+            const expectedClaims = policies * claimProb;
+            const stdClaims = Math.sqrt(policies * claimProb * (1 - claimProb));
+
+            // Probability of exceeding threshold
+            const zScore = (threshold - expectedClaims) / stdClaims;
+            const probExceed = 1 - normalCDF(zScore);
+
+            // 95th and 99th percentiles
+            const percentile95 = expectedClaims + 1.645 * stdClaims;
+            const percentile99 = expectedClaims + 2.326 * stdClaims;
+
+            document.getElementById('insResult').innerHTML = `
+                <div class="result">
+                    <h4>Insurance Risk Analysis</h4>
+                    <strong>Portfolio:</strong> ${policies} policies, ${(claimProb * 100).toFixed(1)}% claim rate<br>
+                    <strong>Expected Claims:</strong> ${expectedClaims.toFixed(1)}<br>
+                    <strong>Standard Deviation:</strong> ${stdClaims.toFixed(1)}<br>
+                    <strong>P(Claims > ${threshold}):</strong> ${(probExceed * 100).toFixed(2)}%<br>
+                    <strong>95th Percentile:</strong> ${percentile95.toFixed(0)} claims<br>
+                    <strong>99th Percentile:</strong> ${percentile99.toFixed(0)} claims<br>
+                    <strong>Risk Level:</strong> ${probExceed > 0.1 ? 'High Risk' : probExceed > 0.05 ? 'Moderate Risk' : 'Low Risk'}
+                </div>
+            `;
+        }
+
+        function simulateGambling() {
+            const betAmount = parseFloat(document.getElementById('betAmount').value);
+            const numRounds = parseInt(document.getElementById('numRounds').value);
+            const betType = document.getElementById('betType').value;
+
+            let winProbability, payout;
+            switch(betType) {
+                case 'red':
+                    winProbability = 18/38;
+                    payout = 2; // 1:1 payout
+                    break;
+                case 'number':
+                    winProbability = 1/38;
+                    payout = 36; // 35:1 payout
+                    break;
+                case 'dozen':
+                    winProbability = 12/38;
+                    payout = 3; // 2:1 payout
+                    break;
+            }
+
+            const expectedValue = betAmount * winProbability * payout - betAmount;
+            const houseEdge = -expectedValue / betAmount;
+
+            let balance = 0;
+            let wins = 0;
+            let losses = 0;
+            let balanceHistory = [0];
+
+            for (let i = 0; i < numRounds; i++) {
+                if (Math.random() < winProbability) {
+                    balance += betAmount * (payout - 1);
+                    wins++;
+                } else {
+                    balance -= betAmount;
+                    losses++;
+                }
+                if (i % 10 === 9) { // Record every 10 rounds
+                    balanceHistory.push(balance);
+                }
+            }
+
+            const actualReturn = balance / numRounds;
+            const theoreticalLoss = expectedValue * numRounds;
+
+            document.getElementById('gamblingResult').innerHTML = `
+                <div class="result">
+                    <h4>Gambling Simulation Results</h4>
+                    <strong>Bet Type:</strong> ${betType.charAt(0).toUpperCase() + betType.slice(1)}<br>
+                    <strong>Rounds Played:</strong> ${numRounds}<br>
+                    <strong>Total Bet:</strong> $${(betAmount * numRounds).toLocaleString()}<br>
+                    <strong>Wins:</strong> ${wins} (${(wins/numRounds*100).toFixed(1)}%)<br>
+                    <strong>Losses:</strong> ${losses} (${(losses/numRounds*100).toFixed(1)}%)<br>
+                    <strong>Final Balance:</strong> <span style="color: ${balance >= 0 ? 'green' : 'red'}">$${balance.toFixed(2)}</span><br>
+                    <strong>Expected Loss per Round:</strong> $${Math.abs(expectedValue).toFixed(2)}<br>
+                    <strong>Theoretical Total Loss:</strong> $${Math.abs(theoreticalLoss).toFixed(2)}<br>
+                    <strong>Actual Total Loss:</strong> $${Math.abs(balance).toFixed(2)}<br>
+                    <strong>House Edge:</strong> ${(houseEdge * 100).toFixed(2)}%<br>
+                    <strong>Key Insight:</strong> ${balance < 0 ? 'As expected, gambling leads to losses!' : 'Lucky streak - but house edge guarantees losses over time!'}
+                </div>
+            `;
+        }
+
+        function compareInvestments() {
+            const returnsA = document.getElementById('returnsA').value.split(',').map(r => parseFloat(r.trim()));
+            const probsA = document.getElementById('probsA').value.split(',').map(p => parseFloat(p.trim()));
+            const returnsB = document.getElementById('returnsB').value.split(',').map(r => parseFloat(r.trim()));
+            const probsB = document.getElementById('probsB').value.split(',').map(p => parseFloat(p.trim()));
+            const investment = parseFloat(document.getElementById('investmentAmount').value);
+
+            // Validate inputs
+            if (returnsA.length !== probsA.length || returnsB.length !== probsB.length) {
+                document.getElementById('investmentResult').innerHTML = `
+                    <div class="result">Error: Returns and probabilities must have the same length.</div>
+                `;
+                return;
+            }
+
+            // Calculate expected returns
+            let expectedReturnA = 0;
+            let expectedReturnSquaredA = 0;
+            for (let i = 0; i < returnsA.length; i++) {
+                expectedReturnA += returnsA[i] * probsA[i];
+                expectedReturnSquaredA += returnsA[i] * returnsA[i] * probsA[i];
+            }
+            const varianceA = expectedReturnSquaredA - expectedReturnA * expectedReturnA;
+            const stdDevA = Math.sqrt(varianceA);
+
+            let expectedReturnB = 0;
+            let expectedReturnSquaredB = 0;
+            for (let i = 0; i < returnsB.length; i++) {
+                expectedReturnB += returnsB[i] * probsB[i];
+                expectedReturnSquaredB += returnsB[i] * returnsB[i] * probsB[i];
+            }
+            const varianceB = expectedReturnSquaredB - expectedReturnB * expectedReturnB;
+            const stdDevB = Math.sqrt(varianceB);
+
+            // Calculate dollar amounts
+            const dollarReturnA = investment * expectedReturnA / 100;
+            const dollarReturnB = investment * expectedReturnB / 100;
+
+            // Risk-adjusted return (Sharpe ratio approximation)
+            const sharpeA = expectedReturnA / stdDevA;
+            const sharpeB = expectedReturnB / stdDevB;
+
+            let recommendation = '';
+            if (expectedReturnA > expectedReturnB && stdDevA <= stdDevB) {
+                recommendation = 'Investment A dominates (higher return, lower/equal risk)';
+            } else if (expectedReturnB > expectedReturnA && stdDevB <= stdDevA) {
+                recommendation = 'Investment B dominates (higher return, lower/equal risk)';
+            } else if (sharpeA > sharpeB) {
+                recommendation = 'Investment A has better risk-adjusted returns';
+            } else {
+                recommendation = 'Investment B has better risk-adjusted returns';
+            }
+
+            document.getElementById('investmentResult').innerHTML = `
+                <div class="result">
+                    <h4>Investment Comparison Analysis</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <strong>Investment A:</strong><br>
+                            Expected Return: ${expectedReturnA.toFixed(2)}%<br>
+                            Standard Deviation: ${stdDevA.toFixed(2)}%<br>
+                            Expected Dollar Return: $${dollarReturnA.toFixed(2)}<br>
+                            Risk-Adjusted Ratio: ${sharpeA.toFixed(3)}
+                        </div>
+                        <div>
+                            <strong>Investment B:</strong><br>
+                            Expected Return: ${expectedReturnB.toFixed(2)}%<br>
+                            Standard Deviation: ${stdDevB.toFixed(2)}%<br>
+                            Expected Dollar Return: $${dollarReturnB.toFixed(2)}<br>
+                            Risk-Adjusted Ratio: ${sharpeB.toFixed(3)}
+                        </div>
+                    </div>
+                    <br>
+                    <strong>Investment Amount:</strong> $${investment.toLocaleString()}<br>
+                    <strong>Recommendation:</strong> ${recommendation}<br>
+                    <strong>Key Insight:</strong> Choose investments based on expected value, but consider risk tolerance!
+                </div>
+            `;
+        }
+        function selectAnswer(questionNum, answerNum) {
+            userAnswers[questionNum] = answerNum;
+            
+            const question = document.querySelector(`[data-question="${questionNum}"]`);
+            const options = question.querySelectorAll('li');
+            
+            options.forEach(option => option.classList.remove('selected'));
+            options[answerNum - 1].classList.add('selected');
+        }
+
+        function checkQuizAnswers() {
+            let score = 0;
+            const totalQuestions = Object.keys(quizAnswers).length;
+
+            for (let questionNum = 1; questionNum <= totalQuestions; questionNum++) {
+                const question = document.querySelector(`[data-question="${questionNum}"]`);
+                const options = question.querySelectorAll('li');
+                const correctAnswer = quizAnswers[questionNum];
+                const userAnswer = userAnswers[questionNum];
+
+                // Reset classes
+                options.forEach(option => {
+                    option.classList.remove('correct', 'incorrect');
+                });
+
+                // Mark correct answer
+                options[correctAnswer - 1].classList.add('correct');
+
+                // Mark user's answer if incorrect
+                if (userAnswer && userAnswer !== correctAnswer) {
+                    options[userAnswer - 1].classList.add('incorrect');
+                }
+
+                // Count score
+                if (userAnswer === correctAnswer) {
+                    score++;
+                }
+            }
+
+            const percentage = (score / totalQuestions) * 100;
+            let gradeText = '';
+            if (percentage >= 90) gradeText = 'Excellent! 🌟';
+            else if (percentage >= 80) gradeText = 'Very Good! 👍';
+            else if (percentage >= 70) gradeText = 'Good! 👌';
+            else if (percentage >= 60) gradeText = 'Passing ✅';
+            else gradeText = 'Need More Study 📚';
+
+            document.getElementById('quizScore').innerHTML = `
+                <div class="score">
+                    Score: ${score}/${totalQuestions} (${percentage.toFixed(1)}%)<br>
+                    ${gradeText}
+                </div>
+            `;
+        }
+
+        function resetQuiz() {
+            userAnswers = {};
+            
+            const questions = document.querySelectorAll('.question');
+            questions.forEach(question => {
+                const options = question.querySelectorAll('li');
+                options.forEach(option => {
+                    option.classList.remove('selected', 'correct', 'incorrect');
+                });
+            });
+
+            document.getElementById('quizScore').innerHTML = '';
+        }
+
+        // Initialize the presentation
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress('overview');
+        });
+    </script>
+</body>
+</html>
