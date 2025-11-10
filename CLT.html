@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central Limit Theorem - Interactive Presentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .nav-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-button.active {
+            background: linear-gradient(45deg, #4fd1c7, #14b8a6);
+        }
+
+        .slide {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide h2 {
+            color: #4a5568;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .slide h3 {
+            color: #667eea;
+            font-size: 1.4rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .theorem-box {
+            background: linear-gradient(135deg, #e6f3ff, #f0f8ff);
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .example-box {
+            background: linear-gradient(135deg, #f0fff4, #f6fffa);
+            border: 2px solid #10b981;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .exercise-box {
+            background: linear-gradient(135deg, #fff5f5, #fffafa);
+            border: 2px solid #ef4444;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .controls {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        .control-group {
+            margin: 1rem 0;
+        }
+
+        .control-group label {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .control-group input {
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin: 0 10px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #6b7280, #4b5563);
+        }
+
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #fef3e2, #fdf4e6);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #f59e0b;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .formula {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        .question {
+            background: #eff6ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .answer-input {
+            width: 100px;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .feedback {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .correct {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .incorrect {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-button {
+                padding: 8px 16px;
+                font-size: 12px;
+                margin: 2px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MAT120 Prof. Khalid Kassou</h1>
+            <h1>The Central Limit Theorem</h1>
+            <p style="font-size: 1.2rem; color: #6b7280;">Understanding the Foundation of Statistical Inference</p>
+        </div>
+
+        <div class="nav-container">
+            <button class="nav-button active" onclick="showSlide(1)">Introduction</button>
+            <button class="nav-button" onclick="showSlide(2)">The Theorem</button>
+            <button class="nav-button" onclick="showSlide(3)">Visualization</button>
+            <button class="nav-button" onclick="showSlide(4)">Examples</button>
+            <button class="nav-button" onclick="showSlide(5)">Applications</button>
+            <button class="nav-button" onclick="showSlide(6)">Exercises</button>
+        </div>
+
+        <!-- Slide 1: Introduction -->
+        <div id="slide1" class="slide active">
+            <h2>Introduction to the Central Limit Theorem</h2>
+            
+            <h3>What is the Central Limit Theorem?</h3>
+            <p>The Central Limit Theorem (CLT) is one of the most important results in probability theory and statistics. It explains why many statistical procedures work and forms the foundation for confidence intervals and hypothesis testing.</p>
+
+            <div class="theorem-box">
+                <h4>Key Insight</h4>
+                <p>No matter what the original population distribution looks like, the sampling distribution of sample means will <span class="highlight">approach a normal distribution</span> as the sample size increases.</p>
+            </div>
+
+            <h3>Why is this Important?</h3>
+            <ul style="margin-left: 2rem; margin-top: 1rem;">
+                <li><strong>Predictable Behavior:</strong> Even if we don't know the population distribution, we can predict the behavior of sample means</li>
+                <li><strong>Statistical Inference:</strong> Allows us to make probability statements about sample means</li>
+                <li><strong>Quality Control:</strong> Used in manufacturing and quality assurance</li>
+                <li><strong>Research:</strong> Foundation for many statistical tests and confidence intervals</li>
+            </ul>
+
+            <h3>Historical Context</h3>
+            <p>The Central Limit Theorem was first proved by Abraham de Moivre in 1733 for the binomial distribution. It was later generalized by Pierre-Simon Laplace and formally stated in its modern form by various mathematicians throughout the 19th and 20th centuries.</p>
+        </div>
+
+        <!-- Slide 2: The Theorem -->
+        <div id="slide2" class="slide">
+            <h2>The Central Limit Theorem Statement</h2>
+
+            <div class="theorem-box">
+                <h3>Formal Statement</h3>
+                <p>Let $X_1, X_2, ..., X_n$ be a random sample from a population with mean $\mu$ and standard deviation $\sigma$. As $n$ approaches infinity, the sampling distribution of the sample mean $\bar{X}$ approaches a normal distribution with:</p>
+                <div class="formula">
+                    $$\bar{X} \sim N\left(\mu, \frac{\sigma}{\sqrt{n}}\right)$$
+                </div>
+            </div>
+
+            <h3>Key Components</h3>
+            <div class="two-column">
+                <div>
+                    <h4>Sample Mean</h4>
+                    <div class="formula">
+                        $$\bar{X} = \frac{1}{n}\sum_{i=1}^{n} X_i$$
+                    </div>
+                    <p>The average of all values in the sample</p>
+
+                    <h4>Standard Error</h4>
+                    <div class="formula">
+                        $$SE = \frac{\sigma}{\sqrt{n}}$$
+                    </div>
+                    <p>The standard deviation of the sampling distribution</p>
+                </div>
+                <div>
+                    <h4>Standardized Form (Z-score)</h4>
+                    <div class="formula">
+                        $$Z = \frac{\bar{X} - \mu}{\sigma/\sqrt{n}}$$
+                    </div>
+                    <p>For large n, Z follows a standard normal distribution</p>
+
+                    <h4>Sample Size Rule</h4>
+                    <p>Generally, $n \geq 30$ is considered sufficient for the CLT to apply, though this depends on the original distribution shape.</p>
+                </div>
+            </div>
+
+            <h3>Conditions for CLT</h3>
+            <div class="example-box">
+                <ol style="margin-left: 2rem;">
+                    <li><strong>Independence:</strong> Sample observations must be independent</li>
+                    <li><strong>Sample Size:</strong> Generally n ≥ 30 (smaller for symmetric populations)</li>
+                    <li><strong>Finite Variance:</strong> Population standard deviation σ must be finite</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Slide 3: Visualization -->
+        <div id="slide3" class="slide">
+            <h2>Interactive CLT Visualization</h2>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Population Distribution:</label>
+                    <select id="distributionType" onchange="updateDistribution()">
+                        <option value="uniform">Uniform</option>
+                        <option value="exponential">Exponential</option>
+                        <option value="bimodal">Bimodal</option>
+                        <option value="skewed">Skewed</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Sample Size (n):</label>
+                    <input type="range" id="sampleSize" min="5" max="100" value="30" onchange="updateVisualization()">
+                    <span id="sampleSizeValue">30</span>
+                </div>
+                <div class="control-group">
+                    <label>Number of Samples:</label>
+                    <input type="range" id="numSamples" min="100" max="1000" value="500" onchange="updateVisualization()">
+                    <span id="numSamplesValue">500</span>
+                </div>
+                <div class="control-group">
+                    <button class="btn" onclick="generateSamples()">Generate New Samples</button>
+                    <button class="btn btn-secondary" onclick="resetVisualization()">Reset</button>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="cltChart"></canvas>
+            </div>
+
+            <div class="stats-display">
+                <div class="stat-card">
+                    <div class="stat-value" id="theoreticalMean">5.0</div>
+                    <div class="stat-label">Theoretical Mean</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="sampleMean">5.0</div>
+                    <div class="stat-label">Sample Mean</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="theoreticalSE">0.58</div>
+                    <div class="stat-label">Theoretical SE</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="sampleSE">0.58</div>
+                    <div class="stat-label">Observed SE</div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h4>Observations:</h4>
+                <ul style="margin-left: 2rem;">
+                    <li>As sample size increases, the sampling distribution becomes more normal</li>
+                    <li>The standard error decreases as n increases: SE = σ/√n</li>
+                    <li>The mean of sample means equals the population mean</li>
+                    <li>This holds regardless of the original population shape!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 4: Examples -->
+        <div id="slide4" class="slide">
+            <h2>Real-World Examples</h2>
+
+            <div class="example-box">
+                <h3>Example 1: Coffee Shop Wait Times</h3>
+                <p>A coffee shop has wait times that are right-skewed with mean μ = 4 minutes and standard deviation σ = 2 minutes. What can we say about the average wait time for samples of 36 customers?</p>
+                
+                <div class="formula">
+                    <strong>Solution:</strong><br>
+                    Sample size: n = 36 ≥ 30 ✓<br>
+                    Mean of sample means: $\mu_{\bar{X}} = \mu = 4$ minutes<br>
+                    Standard error: $SE = \frac{\sigma}{\sqrt{n}} = \frac{2}{\sqrt{36}} = \frac{2}{6} = 0.33$ minutes<br>
+                    Distribution: $\bar{X} \sim N(4, 0.33)$
+                </div>
+
+                <p><strong>Interpretation:</strong> Even though individual wait times are skewed, the average wait time for groups of 36 customers follows a normal distribution centered at 4 minutes with much less variability (SE = 0.33 vs σ = 2).</p>
+            </div>
+
+            <div class="example-box">
+                <h3>Example 2: Manufacturing Quality Control</h3>
+                <p>A factory produces bolts with lengths that have μ = 10.5 cm and σ = 0.8 cm. Quality control samples 25 bolts hourly. What's the probability that the sample mean length is between 10.2 and 10.8 cm?</p>
+
+                <div class="controls">
+                    <button class="btn" onclick="solveBoltExample()">Show Solution</button>
+                </div>
+
+                <div id="boltSolution" style="display: none;">
+                    <div class="formula">
+                        <strong>Step-by-step Solution:</strong><br>
+                        1) Check conditions: n = 25 < 30, but bolt lengths likely normal ✓<br>
+                        2) $\mu_{\bar{X}} = 10.5$ cm, $SE = \frac{0.8}{\sqrt{25}} = 0.16$ cm<br>
+                        3) Convert to z-scores:<br>
+                        $Z_1 = \frac{10.2 - 10.5}{0.16} = -1.875$<br>
+                        $Z_2 = \frac{10.8 - 10.5}{0.16} = 1.875$<br>
+                        4) $P(-1.875 < Z < 1.875) \approx 0.939$
+                    </div>
+                    <p><strong>Answer:</strong> There's about a 93.9% chance that the sample mean will be between 10.2 and 10.8 cm.</p>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <h3>Example 3: Student Test Scores</h3>
+                <p>Test scores in a large school district have μ = 75 and σ = 12. A researcher randomly samples 64 students. Find the probability that the sample mean exceeds 78.</p>
+
+                <div class="controls">
+                    <button class="btn" onclick="solveTestExample()">Show Solution</button>
+                </div>
+
+                <div id="testSolution" style="display: none;">
+                    <div class="formula">
+                        <strong>Solution:</strong><br>
+                        Given: μ = 75, σ = 12, n = 64<br>
+                        $SE = \frac{12}{\sqrt{64}} = \frac{12}{8} = 1.5$<br>
+                        $Z = \frac{78 - 75}{1.5} = \frac{3}{1.5} = 2$<br>
+                        $P(\bar{X} > 78) = P(Z > 2) \approx 0.0228$
+                    </div>
+                    <p><strong>Answer:</strong> There's about a 2.28% chance that the sample mean will exceed 78.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: Applications -->
+        <div id="slide5" class="slide">
+            <h2>Applications of the Central Limit Theorem</h2>
+
+            <h3>1. Confidence Intervals</h3>
+            <div class="example-box">
+                <p>The CLT allows us to construct confidence intervals for population means even when we don't know the population distribution.</p>
+                <div class="formula">
+                    $$\text{95% CI: } \bar{x} \pm 1.96 \cdot \frac{s}{\sqrt{n}}$$
+                </div>
+                <p>Where s is the sample standard deviation (estimate of σ).</p>
+            </div>
+
+            <h3>2. Hypothesis Testing</h3>
+            <div class="example-box">
+                <p>Test statistics for means follow predictable distributions, enabling:</p>
+                <ul style="margin-left: 2rem;">
+                    <li>One-sample t-tests</li>
+                    <li>Two-sample tests</li>
+                    <li>ANOVA procedures</li>
+                </ul>
+            </div>
+
+            <h3>3. Quality Control in Manufacturing</h3>
+            <div class="example-box">
+                <h4>Control Charts</h4>
+                <p>Manufacturers use control charts based on sample means to monitor process stability. The CLT ensures that even if individual measurements aren't normal, the sample means will be.</p>
+                
+                <div class="controls">
+                    <h5>Control Chart Simulator</h5>
+                    <div class="control-group">
+                        <label>Process Mean:</label>
+                        <input type="number" id="processMean" value="100" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>Process Std Dev:</label>
+                        <input type="number" id="processStd" value="5" step="0.1">
+                    </div>
+                    <div class="control-group">
+                        <label>Sample Size:</label>
+                        <input type="number" id="controlSampleSize" value="10" min="1" max="50">
+                    </div>
+                    <button class="btn" onclick="generateControlChart()">Generate Control Chart</button>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="controlChart"></canvas>
+                </div>
+            </div>
+
+            <h3>4. Survey Sampling</h3>
+            <div class="example-box">
+                <p>Political polls, market research, and scientific surveys rely on the CLT to:</p>
+                <ul style="margin-left: 2rem;">
+                    <li>Determine sample sizes needed for desired precision</li>
+                    <li>Calculate margins of error</li>
+                    <li>Make inferences about populations from samples</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 6: Exercises -->
+        <div id="slide6" class="slide">
+            <h2>Practice Exercises</h2>
+
+            <div class="exercise-box">
+                <h3>Exercise 1: Basic CLT Application</h3>
+                <div class="question">
+                    <p>The time spent shopping at a grocery store has a mean of 45 minutes and a standard deviation of 12 minutes. For samples of 36 customers, what is the standard error of the sample mean?</p>
+                    <p>Standard Error = <input type="number" id="ex1Answer" class="answer-input" step="0.01"> minutes</p>
+                    <button class="btn" onclick="checkAnswer(1, 2)">Check Answer</button>
+                    <div id="ex1Feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <div class="exercise-box">
+                <h3>Exercise 2: Probability Calculation</h3>
+                <div class="question">
+                    <p>A population has μ = 50 and σ = 8. For samples of size n = 64, what is the probability that the sample mean is greater than 52?</p>
+                    <p><em>Hint: First find the z-score, then use the standard normal distribution.</em></p>
+                    <p>Probability = <input type="number" id="ex2Answer" class="answer-input" step="0.001"> (decimal form)</p>
+                    <button class="btn" onclick="checkAnswer(2, 0.0228)">Check Answer</button>
+                    <div id="ex2Feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <div class="exercise-box">
+                <h3>Exercise 3: Sample Size Determination</h3>
+                <div class="question">
+                    <p>A process has σ = 6. What sample size is needed so that the standard error of the sample mean is 1.5?</p>
+                    <p><em>Hint: Use SE = σ/√n and solve for n.</em></p>
+                    <p>Sample size n = <input type="number" id="ex3Answer" class="answer-input"> </p>
+                    <button class="btn" onclick="checkAnswer(3, 16)">Check Answer</button>
+                    <div id="ex3Feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <div class="exercise-box">
+                <h3>Exercise 4: Confidence Interval</h3>
+                <div class="question">
+                    <p>A sample of 25 items has a mean of 85 and standard deviation of 10. Construct a 95% confidence interval for the population mean.</p>
+                    <p><em>Hint: 95% CI ≈ mean ± 1.96 × (s/√n)</em></p>
+                    <p>Lower bound = <input type="number" id="ex4aAnswer" class="answer-input" step="0.01"></p>
+                    <p>Upper bound = <input type="number" id="ex4bAnswer" class="answer-input" step="0.01"></p>
+                    <button class="btn" onclick="checkInterval()">Check Answer</button>
+                    <div id="ex4Feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <div class="exercise-box">
+                <h3>Exercise 5: Conceptual Understanding</h3>
+                <div class="question">
+                    <p>True or False: If the population distribution is normal, the sample mean distribution will always be normal regardless of sample size.</p>
+                    <label><input type="radio" name="ex5" value="true"> True</label>
+                    <label><input type="radio" name="ex5" value="false"> False</label><br>
+                    <button class="btn" onclick="checkConceptual()">Check Answer</button>
+                    <div id="ex5Feedback" class="feedback"></div>
+                </div>
+            </div>
+
+            <div class="theorem-box">
+                <h3>Key Takeaways</h3>
+                <ul style="text-align: left; margin-left: 2rem;">
+                    <li>The CLT works for <em>any</em> population distribution (with finite mean and variance)</li>
+                    <li>Larger sample sizes lead to more normal sampling distributions</li>
+                    <li>The standard error decreases as sample size increases: SE = σ/√n</li>
+                    <li>CLT is the foundation for most statistical inference procedures</li>
+                    <li>It explains why normal distributions appear so frequently in statistics</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        let cltChart = null;
+        let controlChartInstance = null;
+
+        // Navigation
+        function showSlide(slideNumber) {
+            // Hide all slides
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`slide${i}`).classList.remove('active');
+            }
+            
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected slide and activate button
+            document.getElementById(`slide${slideNumber}`).classList.add('active');
+            document.querySelectorAll('.nav-button')[slideNumber - 1].classList.add('active');
+            
+            currentSlide = slideNumber;
+
+            // Initialize visualizations when their slides are shown
+            if (slideNumber === 3 && !cltChart) {
+                setTimeout(initializeCLTVisualization, 100);
+            }
+            
+            // Re-render MathJax
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+        }
+
+        // CLT Visualization Functions
+        function initializeCLTVisualization() {
+            updateDistribution();
+        }
+
+        function updateDistribution() {
+            updateVisualization();
+        }
+
+        function updateVisualization() {
+            const distributionType = document.getElementById('distributionType').value;
+            const sampleSize = parseInt(document.getElementById('sampleSize').value);
+            const numSamples = parseInt(document.getElementById('numSamples').value);
+            
+            document.getElementById('sampleSizeValue').textContent = sampleSize;
+            document.getElementById('numSamplesValue').textContent = numSamples;
+            
+            generateSamples();
+        }
+
+        function generateSamples() {
+            const distributionType = document.getElementById('distributionType').value;
+            const sampleSize = parseInt(document.getElementById('sampleSize').value);
+            const numSamples = parseInt(document.getElementById('numSamples').value);
+            
+            // Generate population parameters based on distribution type
+            let popMean, popStd;
+            let populationData = [];
+            let sampleMeans = [];
+            
+            switch(distributionType) {
+                case 'uniform':
+                    popMean = 5;
+                    popStd = Math.sqrt(100/12); // Uniform(0,10) has variance 100/12
+                    for (let i = 0; i < numSamples; i++) {
+                        let sample = [];
+                        for (let j = 0; j < sampleSize; j++) {
+                            sample.push(Math.random() * 10);
+                        }
+                        sampleMeans.push(sample.reduce((a, b) => a + b, 0) / sampleSize);
+                    }
+                    break;
+                case 'exponential':
+                    popMean = 2;
+                    popStd = 2;
+                    for (let i = 0; i < numSamples; i++) {
+                        let sample = [];
+                        for (let j = 0; j < sampleSize; j++) {
+                            sample.push(-Math.log(Math.random()) * 2);
+                        }
+                        sampleMeans.push(sample.reduce((a, b) => a + b, 0) / sampleSize);
+                    }
+                    break;
+                case 'bimodal':
+                    popMean = 5;
+                    popStd = 3;
+                    for (let i = 0; i < numSamples; i++) {
+                        let sample = [];
+                        for (let j = 0; j < sampleSize; j++) {
+                            if (Math.random() < 0.5) {
+                                sample.push(normalRandom() * 1.5 + 2);
+                            } else {
+                                sample.push(normalRandom() * 1.5 + 8);
+                            }
+                        }
+                        sampleMeans.push(sample.reduce((a, b) => a + b, 0) / sampleSize);
+                    }
+                    break;
+                case 'skewed':
+                    popMean = 3;
+                    popStd = 2;
+                    for (let i = 0; i < numSamples; i++) {
+                        let sample = [];
+                        for (let j = 0; j < sampleSize; j++) {
+                            let normal = normalRandom();
+                            sample.push(Math.pow(Math.abs(normal), 1.5) * Math.sign(normal) + 3);
+                        }
+                        sampleMeans.push(sample.reduce((a, b) => a + b, 0) / sampleSize);
+                    }
+                    break;
+            }
+            
+            // Calculate statistics
+            const observedMean = sampleMeans.reduce((a, b) => a + b, 0) / sampleMeans.length;
+            const observedVariance = sampleMeans.reduce((sum, x) => sum + Math.pow(x - observedMean, 2), 0) / (sampleMeans.length - 1);
+            const observedSE = Math.sqrt(observedVariance);
+            const theoreticalSE = popStd / Math.sqrt(sampleSize);
+            
+            // Update statistics display
+            document.getElementById('theoreticalMean').textContent = popMean.toFixed(2);
+            document.getElementById('sampleMean').textContent = observedMean.toFixed(2);
+            document.getElementById('theoreticalSE').textContent = theoreticalSE.toFixed(3);
+            document.getElementById('sampleSE').textContent = observedSE.toFixed(3);
+            
+            // Create histogram
+            createHistogram(sampleMeans, popMean, theoreticalSE);
+        }
+
+        function normalRandom() {
+            // Box-Muller transformation
+            let u1 = Math.random();
+            let u2 = Math.random();
+            return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+        }
+
+        function createHistogram(data, popMean, theoreticalSE) {
+            const ctx = document.getElementById('cltChart').getContext('2d');
+            
+            if (cltChart) {
+                cltChart.destroy();
+            }
+            
+            // Create histogram bins
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            const numBins = 20;
+            const binWidth = (max - min) / numBins;
+            const bins = new Array(numBins).fill(0);
+            const binCenters = [];
+            
+            for (let i = 0; i < numBins; i++) {
+                binCenters.push(min + (i + 0.5) * binWidth);
+            }
+            
+            data.forEach(value => {
+                const binIndex = Math.floor((value - min) / binWidth);
+                if (binIndex >= 0 && binIndex < numBins) {
+                    bins[binIndex]++;
+                }
+            });
+            
+            // Normalize to create probability density
+            const totalCount = data.length;
+            const normalizedBins = bins.map(count => count / (totalCount * binWidth));
+            
+            // Create theoretical normal curve
+            const normalCurve = [];
+            for (let x = min; x <= max; x += (max - min) / 100) {
+                const y = (1 / (theoreticalSE * Math.sqrt(2 * Math.PI))) * 
+                         Math.exp(-0.5 * Math.pow((x - popMean) / theoreticalSE, 2));
+                normalCurve.push({x: x, y: y});
+            }
+            
+            cltChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: binCenters.map(x => x.toFixed(2)),
+                    datasets: [{
+                        label: 'Sample Means Histogram',
+                        data: normalizedBins,
+                        backgroundColor: 'rgba(102, 126, 234, 0.6)',
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        borderWidth: 1
+                    }, {
+                        type: 'line',
+                        label: 'Theoretical Normal',
+                        data: normalCurve.map(point => point.y),
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        xAxisID: 'x2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sample Mean Value'
+                            }
+                        },
+                        x2: {
+                            type: 'linear',
+                            position: 'bottom',
+                            min: min,
+                            max: max,
+                            display: false
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sampling Distribution of Sample Means'
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetVisualization() {
+            document.getElementById('sampleSize').value = 30;
+            document.getElementById('numSamples').value = 500;
+            document.getElementById('distributionType').value = 'uniform';
+            updateVisualization();
+        }
+
+        // Example solutions
+        function solveBoltExample() {
+            document.getElementById('boltSolution').style.display = 'block';
+        }
+
+        function solveTestExample() {
+            document.getElementById('testSolution').style.display = 'block';
+        }
+
+        // Control Chart
+        function generateControlChart() {
+            const mean = parseFloat(document.getElementById('processMean').value);
+            const std = parseFloat(document.getElementById('processStd').value);
+            const n = parseInt(document.getElementById('controlSampleSize').value);
+            
+            const se = std / Math.sqrt(n);
+            const ucl = mean + 3 * se;
+            const lcl = mean - 3 * se;
+            
+            // Generate 20 sample points
+            const points = [];
+            const labels = [];
+            for (let i = 1; i <= 20; i++) {
+                labels.push(`Sample ${i}`);
+                // Generate sample mean (normally distributed around process mean)
+                const sampleMean = mean + normalRandom() * se;
+                points.push(sampleMean);
+            }
+            
+            const ctx = document.getElementById('controlChart').getContext('2d');
+            
+            if (controlChartInstance) {
+                controlChartInstance.destroy();
+            }
+            
+            controlChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Sample Means',
+                        data: points,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        pointBackgroundColor: points.map(p => (p > ucl || p < lcl) ? 'red' : 'rgba(59, 130, 246, 1)'),
+                        pointBorderColor: points.map(p => (p > ucl || p < lcl) ? 'red' : 'rgba(59, 130, 246, 1)'),
+                        pointRadius: 6,
+                        borderWidth: 2
+                    }, {
+                        label: 'Center Line',
+                        data: new Array(20).fill(mean),
+                        borderColor: 'green',
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }, {
+                        label: 'UCL',
+                        data: new Array(20).fill(ucl),
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }, {
+                        label: 'LCL',
+                        data: new Array(20).fill(lcl),
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Sample Mean'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sample Number'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'X-bar Control Chart'
+                        },
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Exercise checking functions
+        function checkAnswer(exerciseNum, correctAnswer) {
+            const userAnswer = parseFloat(document.getElementById(`ex${exerciseNum}Answer`).value);
+            const feedback = document.getElementById(`ex${exerciseNum}Feedback`);
+            
+            if (Math.abs(userAnswer - correctAnswer) < 0.01) {
+                feedback.textContent = "Correct! Well done.";
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = `Incorrect. The correct answer is ${correctAnswer}.`;
+                feedback.className = "feedback incorrect";
+                
+                // Provide hints
+                if (exerciseNum === 1) {
+                    feedback.textContent += " Hint: SE = σ/√n = 12/√36";
+                } else if (exerciseNum === 2) {
+                    feedback.textContent += " Hint: Z = (52-50)/(8/√64) = 2/1 = 2, P(Z>2) ≈ 0.0228";
+                } else if (exerciseNum === 3) {
+                    feedback.textContent += " Hint: 1.5 = 6/√n, so √n = 4, therefore n = 16";
+                }
+            }
+        }
+
+        function checkInterval() {
+            const lower = parseFloat(document.getElementById('ex4aAnswer').value);
+            const upper = parseFloat(document.getElementById('ex4bAnswer').value);
+            const feedback = document.getElementById('ex4Feedback');
+            
+            // Correct values: 85 ± 1.96 * (10/√25) = 85 ± 1.96 * 2 = 85 ± 3.92
+            const correctLower = 81.08;
+            const correctUpper = 88.92;
+            
+            if (Math.abs(lower - correctLower) < 0.1 && Math.abs(upper - correctUpper) < 0.1) {
+                feedback.textContent = "Correct! The 95% confidence interval is (81.08, 88.92).";
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = `Incorrect. The correct interval is (81.08, 88.92). Calculation: 85 ± 1.96 × (10/√25) = 85 ± 3.92`;
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        function checkConceptual() {
+            const selected = document.querySelector('input[name="ex5"]:checked');
+            const feedback = document.getElementById('ex5Feedback');
+            
+            if (selected && selected.value === 'true') {
+                feedback.textContent = "Correct! If the population is normal, the sample mean is normal for ANY sample size.";
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = "Incorrect. The statement is TRUE. When the population is normal, the sample mean distribution is always normal, regardless of sample size.";
+                feedback.className = "feedback incorrect";
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            showSlide(1);
+        });
+    </script>
+</body>
+</html>
