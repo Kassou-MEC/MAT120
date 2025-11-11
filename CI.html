@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confidence Intervals for the Mean - Interactive Presentation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .presentation {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin: 30px 0;
+            padding: 40px;
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .slide-header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .slide-header h2 {
+            color: #764ba2;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+        
+        .slide-header h3 {
+            color: #555;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .content-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .formula-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2em;
+        }
+        
+        .interactive-section {
+            background: #e3f2fd;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+            border: 2px solid #2196f3;
+        }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .result-box {
+            background: #e8f5e8;
+            border: 2px solid #4caf50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 25px 0;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .example-box {
+            background: #fff3e0;
+            border-left: 5px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        
+        .step {
+            background: #f5f5f5;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .highlight {
+            background: #ffeb3b;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .comparison-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .navigation {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .nav-btn {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 10px;
+            font-size: 14px;
+        }
+        
+        .nav-btn:hover {
+            background: #555;
+        }
+        
+        .slide {
+            display: none;
+        }
+        
+        .slide.active {
+            display: block;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .slide {
+                padding: 20px;
+            }
+            
+            .slide-header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+            <span id="slideCounter">1 / 8</span>
+            <button class="nav-btn" onclick="nextSlide()">Next →</button>
+        </div>
+
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <div class="slide-header">
+                <h1>Confidence Intervals for the Mean</h1>
+                <p style="font-size: 1.2em; color: #666; margin-top: 20px;">
+                    Understanding Statistical Inference Through Normal and t-Distributions
+                </p>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>🎯 Learning Objectives</h3>
+                    <ul style="line-height: 2;">
+                        <li>Understand confidence interval concepts</li>
+                        <li>Calculate CIs using Normal distribution</li>
+                        <li>Apply Student's t-distribution</li>
+                        <li>Interpret real-world examples</li>
+                        <li>Compare Z vs T distributions</li>
+                    </ul>
+                </div>
+                
+                <div class="content-section">
+                    <h3>📊 What We'll Cover</h3>
+                    <ul style="line-height: 2;">
+                        <li>Confidence interval fundamentals</li>
+                        <li>Standard error calculations</li>
+                        <li>Margin of error concepts</li>
+                        <li>Interactive calculators</li>
+                        <li>Real-life applications</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="example-box">
+                <h4>💡 Real-World Application Preview</h4>
+                <p>Imagine you're a quality control manager at a smartphone factory. You need to estimate the average battery life of your phones. You can't test every phone, so you take a sample and create a confidence interval. This tells you: "We're 95% confident the true average battery life is between 22.5 and 25.3 hours."</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: Fundamentals -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>📏 Confidence Interval Fundamentals</h2>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>What is a Confidence Interval?</h3>
+                    <p>A confidence interval is a range of values that likely contains the true population parameter with a specified level of confidence.</p>
+                    
+                    <div class="formula-box">
+                        <strong>General Form:</strong><br>
+                        Sample Statistic ± Margin of Error
+                    </div>
+                    
+                    <div class="step">
+                        <strong>Key Components:</strong>
+                        <ul>
+                            <li><span class="highlight">Point Estimate</span>: Sample mean (x̄)</li>
+                            <li><span class="highlight">Margin of Error</span>: Accounts for uncertainty</li>
+                            <li><span class="highlight">Confidence Level</span>: Probability (e.g., 95%)</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h3>Interpretation</h3>
+                    <div class="example-box">
+                        <h4>🎯 Correct Interpretation</h4>
+                        <p>"We are 95% confident that the true population mean lies between 18.2 and 21.8."</p>
+                        
+                        <h4>❌ Common Misconception</h4>
+                        <p>"There's a 95% probability the population mean is in this interval."</p>
+                        
+                        <div style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                            <strong>Key Point:</strong> The interval either contains the parameter or it doesn't. The confidence level refers to the method, not this specific interval.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="interactive-section">
+                <h3>🎮 Interactive Confidence Level Explorer</h3>
+                <div class="input-group">
+                    <label>Confidence Level (%):</label>
+                    <input type="range" id="confLevel" min="80" max="99" value="95" oninput="updateConfidenceDisplay()">
+                    <span id="confLevelDisplay">95%</span>
+                </div>
+                <div id="confInterpretation" class="result-box">
+                    If we repeated our sampling process many times, approximately 95% of the confidence intervals would contain the true population mean.
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3: Normal Distribution CI -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>📊 Normal Distribution Confidence Intervals</h2>
+                <p>When σ (population standard deviation) is known</p>
+            </div>
+            
+            <div class="content-section">
+                <h3>When to Use Normal Distribution</h3>
+                <ul style="line-height: 2;">
+                    <li>Population standard deviation (σ) is <strong>known</strong></li>
+                    <li>Sample size is large (n ≥ 30) OR population is normally distributed</li>
+                    <li>Observations are independent</li>
+                </ul>
+            </div>
+            
+            <div class="formula-box">
+                <h3>Confidence Interval Formula (Normal Distribution)</h3>
+                <strong>CI = x̄ ± Z<sub>α/2</sub> × (σ/√n)</strong><br><br>
+                Where:<br>
+                • x̄ = sample mean<br>
+                • Z<sub>α/2</sub> = critical z-value<br>
+                • σ = population standard deviation<br>
+                • n = sample size<br>
+                • <strong>Standard Error = σ/√n</strong><br>
+                • <strong>Margin of Error = Z<sub>α/2</sub> × SE</strong>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>📋 Step-by-Step Process</h3>
+                    <div class="step">
+                        <strong>Step 1:</strong> Calculate sample mean (x̄)
+                    </div>
+                    <div class="step">
+                        <strong>Step 2:</strong> Find critical z-value (Z<sub>α/2</sub>)
+                    </div>
+                    <div class="step">
+                        <strong>Step 3:</strong> Calculate standard error: SE = σ/√n
+                    </div>
+                    <div class="step">
+                        <strong>Step 4:</strong> Calculate margin of error: ME = Z<sub>α/2</sub> × SE
+                    </div>
+                    <div class="step">
+                        <strong>Step 5:</strong> Construct interval: x̄ ± ME
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Confidence Level</th>
+                            <th>α</th>
+                            <th>α/2</th>
+                            <th>Z<sub>α/2</sub></th>
+                        </tr>
+                        <tr>
+                            <td>90%</td>
+                            <td>0.10</td>
+                            <td>0.05</td>
+                            <td>1.645</td>
+                        </tr>
+                        <tr>
+                            <td>95%</td>
+                            <td>0.05</td>
+                            <td>0.025</td>
+                            <td>1.960</td>
+                        </tr>
+                        <tr>
+                            <td>99%</td>
+                            <td>0.01</td>
+                            <td>0.005</td>
+                            <td>2.576</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Normal Distribution Calculator -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>🧮 Normal Distribution CI Calculator</h2>
+            </div>
+            
+            <div class="interactive-section">
+                <h3>📱 Example: Smartphone Battery Life</h3>
+                <p>A manufacturer wants to estimate the average battery life of their smartphones. They know from past data that σ = 2.5 hours.</p>
+                
+                <div class="content-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>Sample Mean (x̄) hours:</label>
+                            <input type="number" id="sampleMean" value="24.2" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Population Std Dev (σ) hours:</label>
+                            <input type="number" id="popStdDev" value="2.5" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Sample Size (n):</label>
+                            <input type="number" id="sampleSize" value="36" min="1">
+                        </div>
+                        <div class="input-group">
+                            <label>Confidence Level (%):</label>
+                            <select id="confidenceLevel">
+                                <option value="90">90%</option>
+                                <option value="95" selected>95%</option>
+                                <option value="99">99%</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="calculateNormalCI()">Calculate CI</button>
+                    </div>
+                    
+                    <div>
+                        <div id="normalResults" class="result-box">
+                            <h4>Calculation Results:</h4>
+                            <p>Enter values and click "Calculate CI"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="normalChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Slide 5: Student t-Distribution -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>📈 Student's t-Distribution</h2>
+                <p>When σ (population standard deviation) is unknown</p>
+            </div>
+            
+            <div class="content-section">
+                <h3>When to Use t-Distribution</h3>
+                <ul style="line-height: 2;">
+                    <li>Population standard deviation (σ) is <strong>unknown</strong></li>
+                    <li>Sample size is small (n < 30) OR any size with normal population</li>
+                    <li>Use sample standard deviation (s) as estimate</li>
+                    <li>More conservative than normal distribution</li>
+                </ul>
+            </div>
+            
+            <div class="formula-box">
+                <h3>Confidence Interval Formula (t-Distribution)</h3>
+                <strong>CI = x̄ ± t<sub>α/2,df</sub> × (s/√n)</strong><br><br>
+                Where:<br>
+                • x̄ = sample mean<br>
+                • t<sub>α/2,df</sub> = critical t-value with df = n-1<br>
+                • s = sample standard deviation<br>
+                • n = sample size<br>
+                • <strong>Standard Error = s/√n</strong><br>
+                • <strong>Margin of Error = t<sub>α/2,df</sub> × SE</strong>
+            </div>
+            
+            <div class="content-grid">
+                <div class="content-section">
+                    <h3>🔍 t-Distribution Properties</h3>
+                    <ul style="line-height: 1.8;">
+                        <li><strong>Shape:</strong> Bell-shaped, symmetric around 0</li>
+                        <li><strong>Tails:</strong> Heavier than normal distribution</li>
+                        <li><strong>Degrees of Freedom:</strong> df = n - 1</li>
+                        <li><strong>As df increases:</strong> Approaches normal distribution</li>
+                        <li><strong>Wider intervals:</strong> Accounts for additional uncertainty</li>
+                    </ul>
+                </div>
+                
+                <div class="content-section">
+                    <h3>⚖️ Z vs t Critical Values</h3>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>df</th>
+                            <th>t<sub>0.025</sub></th>
+                            <th>Z<sub>0.025</sub></th>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>2.571</td>
+                            <td rowspan="6">1.960</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>2.228</td>
+                        </tr>
+                        <tr>
+                            <td>20</td>
+                            <td>2.086</td>
+                        </tr>
+                        <tr>
+                            <td>30</td>
+                            <td>2.042</td>
+                        </tr>
+                        <tr>
+                            <td>∞</td>
+                            <td>1.960</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: t-Distribution Calculator -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>🧮 t-Distribution CI Calculator</h2>
+            </div>
+            
+            <div class="interactive-section">
+                <h3>☕ Example: Coffee Shop Customer Wait Times</h3>
+                <p>A coffee shop manager wants to estimate average customer wait times. They don't know the population standard deviation, so they'll use the sample standard deviation.</p>
+                
+                <div class="content-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>Sample Mean (x̄) minutes:</label>
+                            <input type="number" id="tSampleMean" value="3.8" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Sample Std Dev (s) minutes:</label>
+                            <input type="number" id="sampleStdDev" value="1.2" step="0.1">
+                        </div>
+                        <div class="input-group">
+                            <label>Sample Size (n):</label>
+                            <input type="number" id="tSampleSize" value="16" min="2">
+                        </div>
+                        <div class="input-group">
+                            <label>Confidence Level (%):</label>
+                            <select id="tConfidenceLevel">
+                                <option value="90">90%</option>
+                                <option value="95" selected>95%</option>
+                                <option value="99">99%</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="calculateTCI()">Calculate CI</button>
+                    </div>
+                    
+                    <div>
+                        <div id="tResults" class="result-box">
+                            <h4>Calculation Results:</h4>
+                            <p>Enter values and click "Calculate CI"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="tChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Slide 7: Comparison -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>⚖️ Normal vs t-Distribution Comparison</h2>
+            </div>
+            
+            <table class="comparison-table" style="margin: 30px 0;">
+                <tr>
+                    <th>Aspect</th>
+                    <th>Normal Distribution (Z)</th>
+                    <th>t-Distribution</th>
+                </tr>
+                <tr>
+                    <td><strong>When to Use</strong></td>
+                    <td>σ known, large n, or normal population</td>
+                    <td>σ unknown, small n, normal population</td>
+                </tr>
+                <tr>
+                    <td><strong>Standard Deviation</strong></td>
+                    <td>Population (σ)</td>
+                    <td>Sample (s)</td>
+                </tr>
+                <tr>
+                    <td><strong>Critical Value</strong></td>
+                    <td>Z<sub>α/2</sub> (constant)</td>
+                    <td>t<sub>α/2,df</sub> (depends on df)</td>
+                </tr>
+                <tr>
+                    <td><strong>Interval Width</strong></td>
+                    <td>Narrower</td>
+                    <td>Wider (more conservative)</td>
+                </tr>
+                <tr>
+                    <td><strong>Degrees of Freedom</strong></td>
+                    <td>Not applicable</td>
+                    <td>df = n - 1</td>
+                </tr>
+            </table>
+            
+            <div class="interactive-section">
+                <h3>📊 Interactive Comparison</h3>
+                <div class="content-grid">
+                    <div>
+                        <div class="input-group">
+                            <label>Sample Size for Comparison:</label>
+                            <input type="number" id="comparisonN" value="10" min="2" max="50" oninput="updateComparison()">
+                        </div>
+                        <div class="input-group">
+                            <label>Confidence Level:</label>
+                            <select id="comparisonConf" onchange="updateComparison()">
+                                <option value="90">90%</option>
+                                <option value="95" selected>95%</option>
+                                <option value="99">99%</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="comparisonResults" class="result-box">
+                        <p>Adjust sample size to see how critical values compare</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Slide 8: Real-World Applications -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2>🌍 Real-World Applications & Practice</h2>
+            </div>
+            
+            <div class="content-grid">
+                <div class="example-box">
+                    <h4>🏥 Medical Research</h4>
+                    <p><strong>Scenario:</strong> A pharmaceutical company tests a new drug's effectiveness.</p>
+                    <p><strong>Data:</strong> n=25, x̄=85.2% improvement, s=12.3%</p>
+                    <p><strong>Goal:</strong> 95% CI for mean improvement rate</p>
+                    <p><strong>Use:</strong> t-distribution (σ unknown, small n)</p>
+                </div>
+                
+                <div class="example-box">
+                    <h4>📊 Market Research</h4>
+                    <p><strong>Scenario:</strong> Online retailer analyzes customer spending.</p>
+                    <p><strong>Data:</strong> n=1000, x̄=$127.50, σ=$45.20 (historical data)</p>
+                    <p><strong>Goal:</strong> 99% CI for mean spending</p>
+                    <p><strong>Use:</strong> Normal distribution (σ known, large n)</p>
+                </div>
+            </div>
+            
+            <div class="interactive-section">
+                <h3>🎯 Practice Problem Generator</h3>
+                <button class="btn" onclick="generateProblem()">Generate New Problem</button>
+                
+                <div id="practiceArea" class="content-section" style="margin-top: 20px; display: none;">
+                    <div id="problemStatement"></div>
+                    <div style="margin-top: 20px;">
+                        <button class="btn" onclick="showSolution()" id="solutionBtn">Show Solution</button>
+                        <button class="btn" onclick="generateProblem()">New Problem</button>
+                    </div>
+                    <div id="solutionArea" style="display: none; margin-top: 20px;"></div>
+                </div>
+            </div>
+            
+            <div class="content-section">
+                <h3>🎓 Key Takeaways</h3>
+                <ul style="line-height: 2;">
+                    <li><strong>Choose wisely:</strong> Use t-distribution when σ is unknown</li>
+                    <li><strong>Sample size matters:</strong> Larger samples → narrower intervals</li>
+                    <li><strong>Confidence level trade-off:</strong> Higher confidence → wider intervals</li>
+                    <li><strong>Interpretation is key:</strong> Confidence level refers to the method, not a specific interval</li>
+                    <li><strong>Real applications:</strong> Quality control, research, business decisions</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="navigation" style="margin-top: 40px;">
+            <button class="nav-btn" onclick="previousSlide()">← Previous</button>
+            <span id="slideCounter2">1 / 8</span>
+            <button class="nav-btn" onclick="nextSlide()">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            
+            // Update slide counters
+            const slideNum = currentSlide + 1;
+            document.getElementById('slideCounter').textContent = `${slideNum} / ${totalSlides}`;
+            document.getElementById('slideCounter2').textContent = `${slideNum} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') previousSlide();
+        });
+
+        function updateConfidenceDisplay() {
+            const level = document.getElementById('confLevel').value;
+            document.getElementById('confLevelDisplay').textContent = level + '%';
+            document.getElementById('confInterpretation').innerHTML = 
+                `If we repeated our sampling process many times, approximately <strong>${level}%</strong> of the confidence intervals would contain the true population mean.`;
+        }
+
+        function calculateNormalCI() {
+            const xBar = parseFloat(document.getElementById('sampleMean').value);
+            const sigma = parseFloat(document.getElementById('popStdDev').value);
+            const n = parseInt(document.getElementById('sampleSize').value);
+            const confLevel = parseInt(document.getElementById('confidenceLevel').value);
+            
+            // Get critical z-value
+            let zCritical;
+            switch(confLevel) {
+                case 90: zCritical = 1.645; break;
+                case 95: zCritical = 1.960; break;
+                case 99: zCritical = 2.576; break;
+            }
+            
+            const standardError = sigma / Math.sqrt(n);
+            const marginOfError = zCritical * standardError;
+            const lowerBound = xBar - marginOfError;
+            const upperBound = xBar + marginOfError;
+            
+            document.getElementById('normalResults').innerHTML = `
+                <h4>📊 Calculation Results:</h4>
+                <p><strong>Sample Mean (x̄):</strong> ${xBar} hours</p>
+                <p><strong>Standard Error (SE):</strong> σ/√n = ${sigma}/√${n} = ${standardError.toFixed(4)} hours</p>
+                <p><strong>Critical Z-value:</strong> ${zCritical}</p>
+                <p><strong>Margin of Error:</strong> ${zCritical} × ${standardError.toFixed(4)} = ${marginOfError.toFixed(4)} hours</p>
+                <p><strong>${confLevel}% Confidence Interval:</strong></p>
+                <p style="font-size: 1.2em; color: #2196f3;"><strong>[${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}] hours</strong></p>
+                <p style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                    <strong>Interpretation:</strong> We are ${confLevel}% confident that the true average battery life is between ${lowerBound.toFixed(2)} and ${upperBound.toFixed(2)} hours.
+                </p>
+            `;
+            
+            drawNormalDistribution(xBar, standardError, zCritical, lowerBound, upperBound, confLevel);
+        }
+
+        function drawNormalDistribution(mean, se, zCrit, lower, upper, conf) {
+            const ctx = document.getElementById('normalChart').getContext('2d');
+            
+            // Clear previous chart
+            if (window.normalChartInstance) {
+                window.normalChartInstance.destroy();
+            }
+            
+            // Generate normal distribution data
+            const xValues = [];
+            const yValues = [];
+            const confidenceXValues = [];
+            const confidenceYValues = [];
+            
+            const start = mean - 4 * se;
+            const end = mean + 4 * se;
+            
+            for (let x = start; x <= end; x += (end - start) / 200) {
+                xValues.push(x);
+                const y = (1 / (se * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / se, 2));
+                yValues.push(y);
+                
+                if (x >= lower && x <= upper) {
+                    confidenceXValues.push(x);
+                    confidenceYValues.push(y);
+                }
+            }
+            
+            window.normalChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(2)),
+                    datasets: [{
+                        label: 'Normal Distribution',
+                        data: yValues,
+                        borderColor: '#667eea',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }, {
+                        label: `${conf}% Confidence Region`,
+                        data: xValues.map((x, i) => x >= lower && x <= upper ? yValues[i] : null),
+                        borderColor: '#4caf50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.3)',
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Sampling Distribution of Sample Mean (Normal)`
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sample Mean (hours)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // t-distribution critical values (simplified table)
+        const tTable = {
+            90: {1: 6.314, 2: 2.920, 3: 2.353, 4: 2.132, 5: 2.015, 6: 1.943, 7: 1.895, 8: 1.860, 9: 1.833, 10: 1.812, 15: 1.753, 20: 1.725, 25: 1.708, 30: 1.697, 40: 1.684, 50: 1.676, 100: 1.660, 1000: 1.646},
+            95: {1: 12.706, 2: 4.303, 3: 3.182, 4: 2.776, 5: 2.571, 6: 2.447, 7: 2.365, 8: 2.306, 9: 2.262, 10: 2.228, 15: 2.131, 20: 2.086, 25: 2.060, 30: 2.042, 40: 2.021, 50: 2.009, 100: 1.984, 1000: 1.962},
+            99: {1: 63.657, 2: 9.925, 3: 5.841, 4: 4.604, 5: 4.032, 6: 3.707, 7: 3.499, 8: 3.355, 9: 3.250, 10: 3.169, 15: 2.947, 20: 2.845, 25: 2.787, 30: 2.750, 40: 2.704, 50: 2.678, 100: 2.626, 1000: 2.581}
+        };
+
+        function getTCritical(df, conf) {
+            const table = tTable[conf];
+            const dfs = Object.keys(table).map(Number).sort((a, b) => a - b);
+            
+            // Find the closest df
+            let closestDf = dfs[0];
+            for (let i = 0; i < dfs.length; i++) {
+                if (df >= dfs[i]) {
+                    closestDf = dfs[i];
+                }
+            }
+            
+            return table[closestDf];
+        }
+
+        function calculateTCI() {
+            const xBar = parseFloat(document.getElementById('tSampleMean').value);
+            const s = parseFloat(document.getElementById('sampleStdDev').value);
+            const n = parseInt(document.getElementById('tSampleSize').value);
+            const confLevel = parseInt(document.getElementById('tConfidenceLevel').value);
+            
+            const df = n - 1;
+            const tCritical = getTCritical(df, confLevel);
+            
+            const standardError = s / Math.sqrt(n);
+            const marginOfError = tCritical * standardError;
+            const lowerBound = xBar - marginOfError;
+            const upperBound = xBar + marginOfError;
+            
+            document.getElementById('tResults').innerHTML = `
+                <h4>📊 Calculation Results:</h4>
+                <p><strong>Sample Mean (x̄):</strong> ${xBar} minutes</p>
+                <p><strong>Degrees of Freedom:</strong> df = n - 1 = ${n} - 1 = ${df}</p>
+                <p><strong>Standard Error (SE):</strong> s/√n = ${s}/√${n} = ${standardError.toFixed(4)} minutes</p>
+                <p><strong>Critical t-value:</strong> t<sub>${(1-confLevel/100)/2},${df}</sub> = ${tCritical}</p>
+                <p><strong>Margin of Error:</strong> ${tCritical} × ${standardError.toFixed(4)} = ${marginOfError.toFixed(4)} minutes</p>
+                <p><strong>${confLevel}% Confidence Interval:</strong></p>
+                <p style="font-size: 1.2em; color: #2196f3;"><strong>[${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}] minutes</strong></p>
+                <p style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                    <strong>Interpretation:</strong> We are ${confLevel}% confident that the true average wait time is between ${lowerBound.toFixed(2)} and ${upperBound.toFixed(2)} minutes.
+                </p>
+            `;
+            
+            drawTDistribution(xBar, standardError, tCritical, lowerBound, upperBound, confLevel, df);
+        }
+
+        function drawTDistribution(mean, se, tCrit, lower, upper, conf, df) {
+            const ctx = document.getElementById('tChart').getContext('2d');
+            
+            // Clear previous chart
+            if (window.tChartInstance) {
+                window.tChartInstance.destroy();
+            }
+            
+            // Generate t-distribution data (approximated)
+            const xValues = [];
+            const yValues = [];
+            
+            const start = mean - 4 * se;
+            const end = mean + 4 * se;
+            
+            for (let x = start; x <= end; x += (end - start) / 200) {
+                xValues.push(x);
+                // Approximate t-distribution as normal for visualization
+                const y = (1 / (se * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / se, 2));
+                yValues.push(y);
+            }
+            
+            window.tChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(2)),
+                    datasets: [{
+                        label: `t-Distribution (df=${df})`,
+                        data: yValues,
+                        borderColor: '#764ba2',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }, {
+                        label: `${conf}% Confidence Region`,
+                        data: xValues.map((x, i) => x >= lower && x <= upper ? yValues[i] : null),
+                        borderColor: '#ff9800',
+                        backgroundColor: 'rgba(255, 152, 0, 0.3)',
+                        fill: true,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Sampling Distribution of Sample Mean (t-Distribution, df=${df})`
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Sample Mean (minutes)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateComparison() {
+            const n = parseInt(document.getElementById('comparisonN').value);
+            const conf = parseInt(document.getElementById('comparisonConf').value);
+            const df = n - 1;
+            
+            let zCritical;
+            switch(conf) {
+                case 90: zCritical = 1.645; break;
+                case 95: zCritical = 1.960; break;
+                case 99: zCritical = 2.576; break;
+            }
+            
+            const tCritical = getTCritical(df, conf);
+            
+            document.getElementById('comparisonResults').innerHTML = `
+                <h4>📊 Critical Value Comparison (n=${n}, ${conf}% confidence):</h4>
+                <p><strong>Normal Distribution:</strong> Z<sub>${(1-conf/100)/2}</sub> = ${zCritical}</p>
+                <p><strong>t-Distribution:</strong> t<sub>${(1-conf/100)/2},${df}</sub> = ${tCritical}</p>
+                <p><strong>Difference:</strong> ${(tCritical - zCritical).toFixed(3)} (${(((tCritical - zCritical) / zCritical) * 100).toFixed(1)}% larger)</p>
+                <p style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 5px;">
+                    The t-distribution produces wider confidence intervals, accounting for additional uncertainty when σ is unknown.
+                </p>
+            `;
+            
+            drawComparisonChart(n, conf, zCritical, tCritical);
+        }
+
+        function drawComparisonChart(n, conf, zCrit, tCrit) {
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            // Clear previous chart
+            if (window.comparisonChartInstance) {
+                window.comparisonChartInstance.destroy();
+            }
+            
+            // Generate distribution data
+            const xValues = [];
+            const normalValues = [];
+            const tValues = [];
+            
+            for (let x = -4; x <= 4; x += 0.1) {
+                xValues.push(x);
+                
+                // Standard normal
+                const normalY = (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x);
+                normalValues.push(normalY);
+                
+                // Approximate t-distribution
+                const df = n - 1;
+                const tY = normalY * Math.pow(1 + (x * x) / df, -(df + 1) / 2) * 1.2; // Approximation
+                tValues.push(tY);
+            }
+            
+            window.comparisonChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: xValues.map(x => x.toFixed(1)),
+                    datasets: [{
+                        label: 'Standard Normal Distribution',
+                        data: normalValues,
+                        borderColor: '#667eea',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0
+                    }, {
+                        label: `t-Distribution (df=${n-1})`,
+                        data: tValues,
+                        borderColor: '#764ba2',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        borderDash: [5, 5]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Comparison: Standard Normal vs t-Distribution (df=${n-1})`
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Standard Deviations'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Practice problems
+        const practiceProblems = [
+            {
+                context: "📱 A smartphone manufacturer",
+                scenario: "tests battery life and finds: n=25, x̄=28.5 hours, s=3.2 hours",
+                question: "Find a 95% confidence interval for the mean battery life",
+                distribution: "t",
+                n: 25,
+                mean: 28.5,
+                std: 3.2,
+                confidence: 95
+            },
+            {
+                context: "🏥 A hospital",
+                scenario: "measures patient wait times: n=50, x̄=45.2 minutes, σ=8.5 minutes (from historical data)",
+                question: "Construct a 90% confidence interval for mean wait time",
+                distribution: "normal",
+                n: 50,
+                mean: 45.2,
+                std: 8.5,
+                confidence: 90
+            },
+            {
+                context: "🎓 A university",
+                scenario: "studies student GPAs: n=15, x̄=3.25, s=0.42",
+                question: "Calculate a 99% confidence interval for the mean GPA",
+                distribution: "t",
+                n: 15,
+                mean: 3.25,
+                std: 0.42,
+                confidence: 99
+            },
+            {
+                context: "🚗 An auto manufacturer",
+                scenario: "tests fuel efficiency: n=100, x̄=32.8 mpg, σ=4.2 mpg (known from specifications)",
+                question: "Find a 95% confidence interval for mean fuel efficiency",
+                distribution: "normal",
+                n: 100,
+                mean: 32.8,
+                std: 4.2,
+                confidence: 95
+            }
+        ];
+
+        let currentProblem = null;
+
+        function generateProblem() {
+            currentProblem = practiceProblems[Math.floor(Math.random() * practiceProblems.length)];
+            
+            document.getElementById('practiceArea').style.display = 'block';
+            document.getElementById('problemStatement').innerHTML = `
+                <h4>${currentProblem.context}</h4>
+                <p><strong>Scenario:</strong> ${currentProblem.scenario}</p>
+                <p><strong>Task:</strong> ${currentProblem.question}</p>
+                <p><strong>Distribution to use:</strong> ${currentProblem.distribution === 'normal' ? 'Normal (σ known)' : 't-Distribution (σ unknown)'}</p>
+            `;
+            
+            document.getElementById('solutionArea').style.display = 'none';
+            document.getElementById('solutionBtn').style.display = 'inline-block';
+        }
+
+        function showSolution() {
+            if (!currentProblem) return;
+            
+            let solution = '';
+            
+            if (currentProblem.distribution === 'normal') {
+                let zCrit;
+                switch(currentProblem.confidence) {
+                    case 90: zCrit = 1.645; break;
+                    case 95: zCrit = 1.960; break;
+                    case 99: zCrit = 2.576; break;
+                }
+                
+                const se = currentProblem.std / Math.sqrt(currentProblem.n);
+                const me = zCrit * se;
+                const lower = currentProblem.mean - me;
+                const upper = currentProblem.mean + me;
+                
+                solution = `
+                    <h4>🔍 Solution (Normal Distribution):</h4>
+                    <p><strong>Step 1:</strong> Identify given values</p>
+                    <p>n = ${currentProblem.n}, x̄ = ${currentProblem.mean}, σ = ${currentProblem.std}</p>
+                    
+                    <p><strong>Step 2:</strong> Find critical z-value</p>
+                    <p>For ${currentProblem.confidence}% confidence: Z<sub>α/2</sub> = ${zCrit}</p>
+                    
+                    <p><strong>Step 3:</strong> Calculate standard error</p>
+                    <p>SE = σ/√n = ${currentProblem.std}/√${currentProblem.n} = ${se.toFixed(4)}</p>
+                    
+                    <p><strong>Step 4:</strong> Calculate margin of error</p>
+                    <p>ME = Z<sub>α/2</sub> × SE = ${zCrit} × ${se.toFixed(4)} = ${me.toFixed(4)}</p>
+                    
+                    <p><strong>Step 5:</strong> Construct confidence interval</p>
+                    <p style="font-size: 1.1em; color: #2196f3;"><strong>CI = [${lower.toFixed(3)}, ${upper.toFixed(3)}]</strong></p>
+                `;
+            } else {
+                const df = currentProblem.n - 1;
+                const tCrit = getTCritical(df, currentProblem.confidence);
+                const se = currentProblem.std / Math.sqrt(currentProblem.n);
+                const me = tCrit * se;
+                const lower = currentProblem.mean - me;
+                const upper = currentProblem.mean + me;
+                
+                solution = `
+                    <h4>🔍 Solution (t-Distribution):</h4>
+                    <p><strong>Step 1:</strong> Identify given values</p>
+                    <p>n = ${currentProblem.n}, x̄ = ${currentProblem.mean}, s = ${currentProblem.std}</p>
+                    
+                    <p><strong>Step 2:</strong> Calculate degrees of freedom</p>
+                    <p>df = n - 1 = ${currentProblem.n} - 1 = ${df}</p>
+                    
+                    <p><strong>Step 3:</strong> Find critical t-value</p>
+                    <p>For ${currentProblem.confidence}% confidence: t<sub>α/2,${df}</sub> = ${tCrit}</p>
+                    
+                    <p><strong>Step 4:</strong> Calculate standard error</p>
+                    <p>SE = s/√n = ${currentProblem.std}/√${currentProblem.n} = ${se.toFixed(4)}</p>
+                    
+                    <p><strong>Step 5:</strong> Calculate margin of error</p>
+                    <p>ME = t<sub>α/2,${df}</sub> × SE = ${tCrit} × ${se.toFixed(4)} = ${me.toFixed(4)}</p>
+                    
+                    <p><strong>Step 6:</strong> Construct confidence interval</p>
+                    <p style="font-size: 1.1em; color: #2196f3;"><strong>CI = [${lower.toFixed(3)}, ${upper.toFixed(3)}]</strong></p>
+                `;
+            }
+            
+            document.getElementById('solutionArea').innerHTML = solution;
+            document.getElementById('solutionArea').style.display = 'block';
+            document.getElementById('solutionBtn').style.display = 'none';
+        }
+
+        // Initialize comparison
+        updateComparison();
+    </script>
+</body>
+</html>
