@@ -1,0 +1,2544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hypothesis Testing - Interactive Presentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #14b8a6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --dark: #1e1b4b;
+            --light: #f8fafc;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --gradient-2: linear-gradient(135deg, #14b8a6 0%, #06b6d4 100%);
+            --gradient-3: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navigation */
+        .nav-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(15, 12, 41, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-pills {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-pill {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 0.85rem;
+        }
+
+        .nav-pill:hover, .nav-pill.active {
+            background: var(--gradient-1);
+            transform: translateY(-2px);
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 0.5s ease;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Title Slide */
+        .title-slide {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .title-slide h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .title-slide .subtitle {
+            font-size: 1.5rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 3rem;
+        }
+
+        .title-topics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .topic-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+        }
+
+        .topic-card .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .topic-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .topic-card p {
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 1.1rem;
+        }
+
+        /* Content Cards */
+        .content-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-card h3 {
+            color: var(--accent);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .content-card p {
+            line-height: 1.8;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Definition Box */
+        .definition-box {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border-left: 4px solid var(--primary);
+            border-radius: 0 15px 15px 0;
+            padding: 1.5rem 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .definition-box .label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .definition-box p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        /* Formula Box */
+        .formula-box {
+            background: rgba(20, 184, 166, 0.1);
+            border: 2px solid var(--accent);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem 0;
+        }
+
+        .formula-box .formula {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        /* Two Column Layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Hypothesis Cards */
+        .hypothesis-card {
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hypothesis-card.null {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(99, 102, 241, 0.1));
+            border: 2px solid var(--primary);
+        }
+
+        .hypothesis-card.alternative {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1));
+            border: 2px solid var(--secondary);
+        }
+
+        .hypothesis-card h4 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hypothesis-card .symbol {
+            font-family: 'Fira Code', monospace;
+            font-size: 2rem;
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            opacity: 0.3;
+        }
+
+        .hypothesis-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .hypothesis-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .hypothesis-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: inherit;
+        }
+
+        /* Error Cards */
+        .error-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .error-card {
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .error-card.type-i {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1));
+            border: 2px solid var(--error);
+        }
+
+        .error-card.type-ii {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1));
+            border: 2px solid var(--warning);
+        }
+
+        .error-card .error-symbol {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .error-card h4 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .error-card .greek {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Decision Table */
+        .decision-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .decision-table th, .decision-table td {
+            padding: 1rem 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .decision-table th {
+            background: rgba(99, 102, 241, 0.3);
+            font-weight: 600;
+        }
+
+        .decision-table td {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .decision-table .correct {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .decision-table .error {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--error);
+        }
+
+        /* Example Box */
+        .example-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .example-box .example-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .example-box .scenario {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .example-box .solution {
+            padding: 1rem;
+            background: rgba(20, 184, 166, 0.1);
+            border-radius: 10px;
+        }
+
+        .example-box .hypothesis-statement {
+            font-family: 'Fira Code', monospace;
+            padding: 0.5rem 1rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+
+        /* Interactive Elements */
+        .interactive-section {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .interactive-section h3 {
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Practice Problems */
+        .practice-problem {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .practice-problem .problem-number {
+            background: var(--gradient-1);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .practice-problem .question {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .practice-input {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .practice-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .reveal-btn {
+            background: var(--gradient-2);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);
+        }
+
+        .answer-reveal {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid var(--success);
+        }
+
+        .answer-reveal.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Quiz Section */
+        .quiz-container {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .quiz-question {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .quiz-question:last-child {
+            border-bottom: none;
+        }
+
+        .quiz-question .q-number {
+            color: var(--secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-question .q-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .quiz-options {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-option:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+        }
+
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        .quiz-option.incorrect {
+            border-color: var(--error);
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        .quiz-option input {
+            display: none;
+        }
+
+        .quiz-option .option-marker {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .quiz-option.selected .option-marker {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .quiz-option.selected .option-marker::after {
+            content: '✓';
+            color: #fff;
+            font-size: 0.8rem;
+        }
+
+        .quiz-submit {
+            background: var(--gradient-1);
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4);
+        }
+
+        .quiz-results {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            margin-top: 2rem;
+        }
+
+        .quiz-results.show {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+        }
+
+        .score-circle .score {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .score-circle .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .quiz-feedback {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .retry-btn {
+            background: transparent;
+            border: 2px solid var(--primary);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            color: var(--primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* Steps List */
+        .steps-list {
+            counter-reset: step;
+        }
+
+        .step-item {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .step-item::before {
+            counter-increment: step;
+            content: counter(step);
+            background: var(--gradient-2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Distribution Visualization */
+        .distribution-viz {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .distribution-svg {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            margin: 2rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid transparent;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .tab-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Navigation Buttons */
+        .slide-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn.prev {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .nav-btn.next {
+            background: var(--gradient-1);
+            color: #fff;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Alert boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert-info {
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid var(--primary);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid var(--warning);
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid var(--success);
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        /* Highlight */
+        .highlight {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(139, 92, 246, 0.3));
+            padding: 0.2rem 0.5rem;
+            border-radius: 5px;
+        }
+
+        /* Code display */
+        .code-display {
+            font-family: 'Fira Code', monospace;
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            overflow-x: auto;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .nav-pills {
+                justify-content: center;
+            }
+
+            .title-slide h1 {
+                font-size: 2rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.8rem;
+            }
+
+            .slide {
+                padding: 1rem;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dashed rgba(255,255,255,0.5);
+        }
+
+        .tooltip::after {
+            content: attr(data-tip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Full Example Walkthrough */
+        .walkthrough-container {
+            background: rgba(255,255,255,0.02);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .walkthrough-step {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .walkthrough-step h5 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .math-expression {
+            font-family: 'Fira Code', monospace;
+            background: rgba(0,0,0,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            display: inline-block;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="nav-content">
+            <div class="logo">📊 Hypothesis Testing</div>
+            
+            <div class="nav-pills">
+                <button class="nav-pill active" onclick="goToSlide(0)">Home</button>
+                <button class="nav-pill" onclick="goToSlide(1)">H₀ & H₁</button>
+                <button class="nav-pill" onclick="goToSlide(2)">Errors</button>
+                <button class="nav-pill" onclick="goToSlide(3)">Distributions</button>
+                <button class="nav-pill" onclick="goToSlide(4)">Rare Events</button>
+                <button class="nav-pill" onclick="goToSlide(5)">Decisions</button>
+                <button class="nav-pill" onclick="goToSlide(6)">Examples</button>
+                <button class="nav-pill" onclick="goToSlide(7)">Practice</button>
+                <button class="nav-pill" onclick="goToSlide(8)">Quiz</button>
+            </div>
+        </div>
+        <div class="progress-bar" id="progressBar"></div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Slide 0: Title -->
+        <section class="slide active" id="slide-0">
+            <div class="title-slide">
+                <h2>MAT120 Prof. Khalid Kassou</h2>
+                <h2>Hypothesis Testing</h2>
+                <p class="subtitle">A Complete Guide to Statistical Decision Making</p>
+                
+                <div class="title-topics">
+                    <div class="topic-card" onclick="goToSlide(1)">
+                        <div class="icon">🎯</div>
+                        <h3>Null & Alternative Hypotheses</h3>
+                        <p>Learn to formulate and state hypotheses correctly</p>
+                    </div>
+                    <div class="topic-card" onclick="goToSlide(2)">
+                        <div class="icon">⚠️</div>
+                        <h3>Type I & Type II Errors</h3>
+                        <p>Understanding the risks in hypothesis testing</p>
+                    </div>
+                    <div class="topic-card" onclick="goToSlide(3)">
+                        <div class="icon">📈</div>
+                        <h3>Test Distributions</h3>
+                        <p>Choosing the right distribution for your test</p>
+                    </div>
+                    <div class="topic-card" onclick="goToSlide(4)">
+                        <div class="icon">🌟</div>
+                        <h3>Rare Events</h3>
+                        <p>The probability principle behind decisions</p>
+                    </div>
+                    <div class="topic-card" onclick="goToSlide(5)">
+                        <div class="icon">✅</div>
+                        <h3>Decision & Conclusion</h3>
+                        <p>Making and interpreting statistical decisions</p>
+                    </div>
+                    <div class="topic-card" onclick="goToSlide(6)">
+                        <div class="icon">📝</div>
+                        <h3>Full Examples</h3>
+                        <p>Complete hypothesis test walkthroughs</p>
+                    </div>
+                </div>
+
+                <div class="slide-nav" style="justify-content: center;">
+                    <button class="nav-btn next" onclick="nextSlide()">Get Started →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 1: Null and Alternative Hypotheses -->
+        <section class="slide" id="slide-1">
+            <div class="section-header">
+                <h2>🎯 Null and Alternative Hypotheses</h2>
+                <p>The foundation of statistical hypothesis testing</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="label">Definition</div>
+                <p><strong>Hypothesis Testing</strong> is a statistical method used to make decisions about a population parameter based on sample data. It involves comparing observed data against a claim or hypothesis about the population.</p>
+            </div>
+
+            <div class="two-column">
+                <div class="hypothesis-card null">
+                    <span class="symbol">H₀</span>
+                    <h4>Null Hypothesis (H₀)</h4>
+                    <p>The statement of <strong>no effect</strong>, <strong>no difference</strong>, or <strong>status quo</strong>.</p>
+                    <ul>
+                        <li>Always contains an equality (=, ≤, or ≥)</li>
+                        <li>Assumed true until evidence suggests otherwise</li>
+                        <li>The hypothesis we are trying to disprove</li>
+                        <li>Cannot be "accepted" — only fail to reject</li>
+                    </ul>
+                </div>
+
+                <div class="hypothesis-card alternative">
+                    <span class="symbol">H₁</span>
+                    <h4>Alternative Hypothesis (H₁ or Hₐ)</h4>
+                    <p>The statement of <strong>an effect</strong>, <strong>a difference</strong>, or <strong>change</strong>.</p>
+                    <ul>
+                        <li>Contains inequality (≠, <, or >)</li>
+                        <li>What we want to prove with evidence</li>
+                        <li>The research hypothesis</li>
+                        <li>Opposite of the null hypothesis</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-card" style="margin-top: 2rem;">
+                <h3>📋 Types of Hypothesis Tests</h3>
+                <div class="tabs-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="switchTab(event, 'two-tailed')">Two-Tailed (≠)</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'left-tailed')">Left-Tailed (<)</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'right-tailed')">Right-Tailed (>)</button>
+                    </div>
+
+                    <div class="tab-content active" id="two-tailed">
+                        <div class="example-box">
+                            <div class="example-header">📌 Two-Tailed Test</div>
+                            <p><strong>Use when:</strong> You want to test if a parameter is <em>different from</em> a specific value (could be higher or lower).</p>
+                            <div class="scenario">
+                                <strong>Scenario:</strong> A company claims their light bulbs last exactly 1000 hours on average. You want to test if the actual mean is different from 1000 hours.
+                            </div>
+                            <div class="solution">
+                                <div class="hypothesis-statement">H₀: μ = 1000</div>
+                                <div class="hypothesis-statement">H₁: μ ≠ 1000</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="left-tailed">
+                        <div class="example-box">
+                            <div class="example-header">📌 Left-Tailed Test</div>
+                            <p><strong>Use when:</strong> You want to test if a parameter is <em>less than</em> a specific value.</p>
+                            <div class="scenario">
+                                <strong>Scenario:</strong> A diet program claims participants lose at least 10 pounds on average. You suspect they lose less.
+                            </div>
+                            <div class="solution">
+                                <div class="hypothesis-statement">H₀: μ ≥ 10</div>
+                                <div class="hypothesis-statement">H₁: μ < 10</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="right-tailed">
+                        <div class="example-box">
+                            <div class="example-header">📌 Right-Tailed Test</div>
+                            <p><strong>Use when:</strong> You want to test if a parameter is <em>greater than</em> a specific value.</p>
+                            <div class="scenario">
+                                <strong>Scenario:</strong> A new teaching method claims to improve test scores beyond the current average of 75. You want to prove scores are higher.
+                            </div>
+                            <div class="solution">
+                                <div class="hypothesis-statement">H₀: μ ≤ 75</div>
+                                <div class="hypothesis-statement">H₁: μ > 75</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">💡</span>
+                <div>
+                    <strong>Remember:</strong> The null hypothesis always contains the equality sign. When in doubt, think about what you're trying to <em>prove</em> — that goes in H₁.
+                </div>
+            </div>
+
+            <div class="interactive-section">
+                <h3>✏️ More Examples: Stating Hypotheses</h3>
+                
+                <div class="example-box">
+                    <div class="example-header">Example 1: Population Mean</div>
+                    <div class="scenario">
+                        A manufacturer claims their batteries last 500 hours. A consumer group believes the batteries last less than claimed.
+                    </div>
+                    <div class="solution">
+                        <p><strong>What are we testing?</strong> Whether the mean is less than 500.</p>
+                        <div class="hypothesis-statement">H₀: μ ≥ 500 hours</div>
+                        <div class="hypothesis-statement">H₁: μ < 500 hours</div>
+                        <p style="margin-top: 0.5rem; color: var(--accent);">This is a <strong>left-tailed test</strong></p>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-header">Example 2: Population Proportion</div>
+                    <div class="scenario">
+                        A politician claims that more than 60% of voters support a new policy. A pollster wants to test this claim.
+                    </div>
+                    <div class="solution">
+                        <p><strong>What are we testing?</strong> Whether the proportion is greater than 0.60.</p>
+                        <div class="hypothesis-statement">H₀: p ≤ 0.60</div>
+                        <div class="hypothesis-statement">H₁: p > 0.60</div>
+                        <p style="margin-top: 0.5rem; color: var(--accent);">This is a <strong>right-tailed test</strong></p>
+                    </div>
+                </div>
+
+                <div class="example-box">
+                    <div class="example-header">Example 3: Difference from Standard</div>
+                    <div class="scenario">
+                        A pharmaceutical company requires that pills weigh exactly 500mg. Quality control wants to check if the production line is producing pills at the correct weight.
+                    </div>
+                    <div class="solution">
+                        <p><strong>What are we testing?</strong> Whether the mean weight differs from 500mg.</p>
+                        <div class="hypothesis-statement">H₀: μ = 500 mg</div>
+                        <div class="hypothesis-statement">H₁: μ ≠ 500 mg</div>
+                        <p style="margin-top: 0.5rem; color: var(--accent);">This is a <strong>two-tailed test</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Type I & II Errors →</button>
+            </div>
+        </section>
+
+        <!-- Slide 2: Type I and Type II Errors -->
+        <section class="slide" id="slide-2">
+            <div class="section-header">
+                <h2>⚠️ Type I and Type II Errors</h2>
+                <p>Understanding the risks in statistical decision making</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="label">Key Concept</div>
+                <p>In hypothesis testing, we can make two types of errors because we're making decisions based on sample data, not the entire population. These errors have real-world consequences that must be carefully considered.</p>
+            </div>
+
+            <div class="error-grid">
+                <div class="error-card type-i">
+                    <div class="error-symbol">🚨</div>
+                    <h4>Type I Error</h4>
+                    <div class="greek">α (alpha)</div>
+                    <p><strong>False Positive</strong></p>
+                    <p>Rejecting H₀ when H₀ is actually TRUE</p>
+                    <br>
+                    <p style="font-size: 0.9rem; opacity: 0.9;">Also called the <strong>significance level</strong></p>
+                </div>
+
+                <div class="error-card type-ii">
+                    <div class="error-symbol">🔇</div>
+                    <h4>Type II Error</h4>
+                    <div class="greek">β (beta)</div>
+                    <p><strong>False Negative</strong></p>
+                    <p>Failing to reject H₀ when H₀ is actually FALSE</p>
+                    <br>
+                    <p style="font-size: 0.9rem; opacity: 0.9;"><strong>Power = 1 - β</strong></p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>📊 Decision Matrix</h3>
+                <table class="decision-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th colspan="2">Reality (Truth)</th>
+                        </tr>
+                        <tr>
+                            <th>Decision</th>
+                            <th>H₀ is True</th>
+                            <th>H₀ is False</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Reject H₀</strong></td>
+                            <td class="error">Type I Error (α)<br><small>False Positive</small></td>
+                            <td class="correct">Correct Decision<br><small>Power = 1 - β</small></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fail to Reject H₀</strong></td>
+                            <td class="correct">Correct Decision<br><small>Confidence = 1 - α</small></td>
+                            <td class="error">Type II Error (β)<br><small>False Negative</small></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="interactive-section">
+                <h3>🎭 Real-World Analogies</h3>
+                
+                <div class="two-column">
+                    <div class="example-box">
+                        <div class="example-header">⚖️ Court Trial Analogy</div>
+                        <p><strong>H₀:</strong> The defendant is innocent</p>
+                        <p><strong>H₁:</strong> The defendant is guilty</p>
+                        <br>
+                        <p><span class="highlight">Type I Error:</span> Convicting an innocent person (rejecting innocence when they ARE innocent)</p>
+                        <br>
+                        <p><span class="highlight">Type II Error:</span> Letting a guilty person go free (failing to reject innocence when they ARE guilty)</p>
+                    </div>
+
+                    <div class="example-box">
+                        <div class="example-header">🏥 Medical Test Analogy</div>
+                        <p><strong>H₀:</strong> Patient does not have the disease</p>
+                        <p><strong>H₁:</strong> Patient has the disease</p>
+                        <br>
+                        <p><span class="highlight">Type I Error:</span> Telling a healthy person they're sick (false positive)</p>
+                        <br>
+                        <p><span class="highlight">Type II Error:</span> Telling a sick person they're healthy (false negative)</p>
+                    </div>
+                </div>
+
+                <div class="example-box" style="margin-top: 1.5rem;">
+                    <div class="example-header">🔥 Fire Alarm Analogy</div>
+                    <p><strong>H₀:</strong> There is no fire</p>
+                    <p><strong>H₁:</strong> There is a fire</p>
+                    <br>
+                    <p><span class="highlight">Type I Error:</span> Alarm goes off when there's no fire (false alarm) — annoying but not dangerous</p>
+                    <br>
+                    <p><span class="highlight">Type II Error:</span> Alarm doesn't go off when there IS a fire — potentially deadly!</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>⚖️ Balancing Type I and Type II Errors</h3>
+                <p>There's a trade-off between the two types of errors:</p>
+                <br>
+                <ul style="padding-left: 1.5rem; line-height: 2;">
+                    <li>Decreasing α (Type I) typically <strong>increases</strong> β (Type II)</li>
+                    <li>Increasing sample size decreases <strong>both</strong> types of errors</li>
+                    <li>The choice of α depends on the consequences of each error type</li>
+                    <li>Common α values: 0.01, 0.05, 0.10</li>
+                </ul>
+                <br>
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Which error is worse?</strong> It depends on context! For a cancer screening, Type II (missing cancer) is worse. For a criminal trial, Type I (convicting innocent) is considered worse.
+                    </div>
+                </div>
+            </div>
+
+            <div class="formula-box">
+                <div class="formula">
+                    P(Type I Error) = α &nbsp;&nbsp;|&nbsp;&nbsp; P(Type II Error) = β &nbsp;&nbsp;|&nbsp;&nbsp; Power = 1 - β
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Distributions →</button>
+            </div>
+        </section>
+
+        <!-- Slide 3: Distribution Needed for Hypothesis Testing -->
+        <section class="slide" id="slide-3">
+            <div class="section-header">
+                <h2>📈 Distributions for Hypothesis Testing</h2>
+                <p>Choosing the right distribution based on your data</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="label">Key Concept</div>
+                <p>The choice of distribution depends on what you're testing, your sample size, and whether the population standard deviation is known.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>🔀 Decision Flowchart for Distribution Selection</h3>
+                
+                <div class="tabs-container">
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="switchTab(event, 'z-dist')">Z-Distribution</button>
+                        <button class="tab-btn" onclick="switchTab(event, 't-dist')">T-Distribution</button>
+                        <button class="tab-btn" onclick="switchTab(event, 'chi-dist')">Chi-Square</button>
+                    </div>
+
+                    <div class="tab-content active" id="z-dist">
+                        <div class="hypothesis-card null" style="border-color: var(--primary);">
+                            <h4>Z-Distribution (Standard Normal)</h4>
+                            <p><strong>Use when:</strong></p>
+                            <ul>
+                                <li>Testing a population mean with σ (population SD) <strong>known</strong></li>
+                                <li>Sample size n ≥ 30 (Central Limit Theorem applies)</li>
+                                <li>Testing a population proportion (np ≥ 5 and nq ≥ 5)</li>
+                            </ul>
+                            <br>
+                            <div class="formula-box">
+                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Test Statistic for Mean:</p>
+                                <div class="formula">z = (x̄ - μ₀) / (σ / √n)</div>
+                            </div>
+                            <div class="formula-box">
+                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Test Statistic for Proportion:</p>
+                                <div class="formula">z = (p̂ - p₀) / √(p₀q₀ / n)</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="t-dist">
+                        <div class="hypothesis-card alternative" style="border-color: var(--secondary);">
+                            <h4>T-Distribution (Student's t)</h4>
+                            <p><strong>Use when:</strong></p>
+                            <ul>
+                                <li>Testing a population mean with σ <strong>unknown</strong></li>
+                                <li>Must use sample standard deviation (s) instead</li>
+                                <li>Population is approximately normal OR n ≥ 30</li>
+                                <li>Degrees of freedom: df = n - 1</li>
+                            </ul>
+                            <br>
+                            <div class="formula-box">
+                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Test Statistic:</p>
+                                <div class="formula">t = (x̄ - μ₀) / (s / √n)</div>
+                            </div>
+                            <div class="alert alert-info" style="margin-top: 1rem;">
+                                <span class="alert-icon">📝</span>
+                                <div>As n increases, t-distribution approaches z-distribution</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-content" id="chi-dist">
+                        <div class="hypothesis-card null" style="border-color: var(--accent);">
+                            <h4>Chi-Square Distribution (χ²)</h4>
+                            <p><strong>Use when:</strong></p>
+                            <ul>
+                                <li>Testing a population variance or standard deviation</li>
+                                <li>Goodness-of-fit tests</li>
+                                <li>Tests of independence</li>
+                                <li>Population must be normally distributed</li>
+                            </ul>
+                            <br>
+                            <div class="formula-box">
+                                <p style="margin-bottom: 0.5rem; font-size: 0.9rem;">Test Statistic for Variance:</p>
+                                <div class="formula">χ² = (n - 1)s² / σ₀²</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="distribution-viz">
+                <h4 style="margin-bottom: 1rem;">📊 Visual Comparison of Distributions</h4>
+                <svg class="distribution-svg" viewBox="0 0 600 300" width="100%" height="300">
+                    <!-- Grid -->
+                    <defs>
+                        <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                            <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="600" height="300" fill="url(#grid)"/>
+                    
+                    <!-- Axis -->
+                    <line x1="50" y1="250" x2="550" y2="250" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+                    <line x1="300" y1="30" x2="300" y2="250" stroke="rgba(255,255,255,0.3)" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- Z distribution (normal) -->
+                    <path d="M 100 250 Q 150 250, 200 220 Q 250 150, 300 60 Q 350 150, 400 220 Q 450 250, 500 250" 
+                          fill="none" stroke="#6366f1" stroke-width="3"/>
+                    
+                    <!-- T distribution (df=5) -->
+                    <path d="M 100 250 Q 160 248, 210 225 Q 260 170, 300 90 Q 340 170, 390 225 Q 440 248, 500 250" 
+                          fill="none" stroke="#ec4899" stroke-width="3"/>
+                    
+                    <!-- Legend -->
+                    <rect x="380" y="40" width="15" height="15" fill="#6366f1"/>
+                    <text x="400" y="52" fill="#fff" font-size="12">Z (Normal)</text>
+                    <rect x="380" y="65" width="15" height="15" fill="#ec4899"/>
+                    <text x="400" y="77" fill="#fff" font-size="12">t (df=5)</text>
+                    
+                    <!-- Labels -->
+                    <text x="300" y="275" fill="#fff" font-size="12" text-anchor="middle">0</text>
+                    <text x="150" y="275" fill="#fff" font-size="12" text-anchor="middle">-3</text>
+                    <text x="450" y="275" fill="#fff" font-size="12" text-anchor="middle">+3</text>
+                </svg>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 1rem;">
+                    Notice: The t-distribution has heavier tails than the normal distribution, especially with small sample sizes.
+                </p>
+            </div>
+
+            <div class="content-card">
+                <h3>📋 Quick Reference: Which Distribution?</h3>
+                <table class="decision-table">
+                    <thead>
+                        <tr>
+                            <th>Testing</th>
+                            <th>Conditions</th>
+                            <th>Distribution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Mean (μ)</td>
+                            <td>σ known, n ≥ 30</td>
+                            <td><strong>Z</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Mean (μ)</td>
+                            <td>σ unknown, any n</td>
+                            <td><strong>t</strong> (df = n-1)</td>
+                        </tr>
+                        <tr>
+                            <td>Proportion (p)</td>
+                            <td>np ≥ 5 and nq ≥ 5</td>
+                            <td><strong>Z</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Variance (σ²)</td>
+                            <td>Normal population</td>
+                            <td><strong>χ²</strong> (df = n-1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Rare Events →</button>
+            </div>
+        </section>
+
+        <!-- Slide 4: Rare Events -->
+        <section class="slide" id="slide-4">
+            <div class="section-header">
+                <h2>🌟 Rare Events & the p-value</h2>
+                <p>The probability principle behind statistical decisions</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="label">The Rare Event Rule</div>
+                <p>If, under a given assumption (H₀), the probability of a particular observed event is very small, we conclude that the assumption is probably not correct.</p>
+            </div>
+
+            <div class="content-card">
+                <h3>🎲 Understanding the p-value</h3>
+                <div class="definition-box" style="background: linear-gradient(135deg, rgba(20, 184, 166, 0.2), rgba(6, 182, 212, 0.2)); border-color: var(--accent);">
+                    <div class="label">Definition</div>
+                    <p><strong>p-value</strong> = The probability of obtaining a test statistic at least as extreme as the one observed, <em>assuming the null hypothesis is true</em>.</p>
+                </div>
+                
+                <br>
+                <p>Think of the p-value as answering: "If H₀ were true, how surprised should I be by this data?"</p>
+                
+                <ul style="padding-left: 1.5rem; margin-top: 1rem; line-height: 2;">
+                    <li><strong>Small p-value</strong> (≤ α): The observed result is unlikely if H₀ is true → Reject H₀</li>
+                    <li><strong>Large p-value</strong> (> α): The observed result is reasonably likely if H₀ is true → Fail to reject H₀</li>
+                </ul>
+            </div>
+
+            <div class="distribution-viz">
+                <h4 style="margin-bottom: 1rem;">📊 Visualizing the p-value (Two-Tailed Test)</h4>
+                <svg class="distribution-svg" viewBox="0 0 600 280" width="100%" height="280">
+                    <!-- Grid pattern -->
+                    <rect width="600" height="280" fill="url(#grid)"/>
+                    
+                    <!-- Normal curve fill for tails -->
+                    <path d="M 80 230 Q 120 230, 140 220 L 140 230 Z" fill="rgba(239, 68, 68, 0.4)"/>
+                    <path d="M 520 230 Q 480 230, 460 220 L 460 230 Z" fill="rgba(239, 68, 68, 0.4)"/>
+                    
+                    <!-- Normal curve -->
+                    <path d="M 80 230 Q 130 228, 180 200 Q 240 130, 300 50 Q 360 130, 420 200 Q 470 228, 520 230" 
+                          fill="rgba(99, 102, 241, 0.2)" stroke="#6366f1" stroke-width="3"/>
+                    
+                    <!-- Critical value lines -->
+                    <line x1="140" y1="50" x2="140" y2="230" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,5"/>
+                    <line x1="460" y1="50" x2="460" y2="230" stroke="#ef4444" stroke-width="2" stroke-dasharray="5,5"/>
+                    
+                    <!-- Test statistic line -->
+                    <line x1="420" y1="50" x2="420" y2="230" stroke="#22c55e" stroke-width="3"/>
+                    
+                    <!-- Labels -->
+                    <text x="300" y="260" fill="#fff" font-size="14" text-anchor="middle">0</text>
+                    <text x="140" y="260" fill="#ef4444" font-size="12" text-anchor="middle">-z_α/2</text>
+                    <text x="460" y="260" fill="#ef4444" font-size="12" text-anchor="middle">+z_α/2</text>
+                    <text x="420" y="40" fill="#22c55e" font-size="12" text-anchor="middle">test stat</text>
+                    
+                    <!-- Annotations -->
+                    <text x="100" y="180" fill="#ef4444" font-size="11" text-anchor="middle">Reject</text>
+                    <text x="100" y="195" fill="#ef4444" font-size="11" text-anchor="middle">Region</text>
+                    <text x="500" y="180" fill="#ef4444" font-size="11" text-anchor="middle">Reject</text>
+                    <text x="500" y="195" fill="#ef4444" font-size="11" text-anchor="middle">Region</text>
+                    <text x="300" y="150" fill="#6366f1" font-size="12" text-anchor="middle">Fail to Reject Region</text>
+                    
+                    <!-- p-value annotation -->
+                    <path d="M 420 200 Q 470 228, 520 230" fill="rgba(34, 197, 94, 0.3)" stroke="none"/>
+                    <text x="480" y="220" fill="#22c55e" font-size="11">p-value/2</text>
+                </svg>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 1rem;">
+                    The green line shows the test statistic. The shaded tail areas represent the p-value.
+                </p>
+            </div>
+
+            <div class="two-column">
+                <div class="content-card">
+                    <h3>📏 Common Significance Levels (α)</h3>
+                    <table class="decision-table">
+                        <thead>
+                            <tr>
+                                <th>α Level</th>
+                                <th>Confidence</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>0.10</td>
+                                <td>90%</td>
+                                <td>Preliminary research</td>
+                            </tr>
+                            <tr>
+                                <td>0.05</td>
+                                <td>95%</td>
+                                <td>Most common (standard)</td>
+                            </tr>
+                            <tr>
+                                <td>0.01</td>
+                                <td>99%</td>
+                                <td>Medical/legal decisions</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="content-card">
+                    <h3>🎯 The Decision Rule</h3>
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <div>
+                            <strong>If p-value ≤ α:</strong><br>
+                            Reject H₀ (statistically significant)
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">⏸️</span>
+                        <div>
+                            <strong>If p-value > α:</strong><br>
+                            Fail to reject H₀ (not statistically significant)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>💡 Memory Tricks</h3>
+                <div class="example-box">
+                    <p style="font-size: 1.2rem; text-align: center;">"If p is low, the null must go!"</p>
+                    <p style="font-size: 1.2rem; text-align: center; margin-top: 1rem;">"If p is high, let the null fly!"</p>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <span class="alert-icon">⚠️</span>
+                <div>
+                    <strong>Important:</strong> A small p-value tells you the result is <em>statistically significant</em>, but it doesn't tell you if the effect is <em>practically significant</em> or important!
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Decision & Conclusion →</button>
+            </div>
+        </section>
+
+        <!-- Slide 5: Decision and Conclusion -->
+        <section class="slide" id="slide-5">
+            <div class="section-header">
+                <h2>✅ Decision and Conclusion</h2>
+                <p>Making and interpreting statistical decisions properly</p>
+            </div>
+
+            <div class="definition-box">
+                <div class="label">Two Approaches to Making Decisions</div>
+                <p>There are two equivalent methods to make a decision in hypothesis testing: the <strong>p-value method</strong> and the <strong>critical value method</strong>. Both lead to the same conclusion.</p>
+            </div>
+
+            <div class="two-column">
+                <div class="content-card">
+                    <h3>📊 P-Value Method</h3>
+                    <div class="steps-list">
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Calculate the test statistic</h4>
+                                <p>Using the appropriate formula (z or t)</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Find the p-value</h4>
+                                <p>Area in the tail(s) beyond the test statistic</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Compare p-value to α</h4>
+                                <p>If p ≤ α, reject H₀</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3>📏 Critical Value Method</h3>
+                    <div class="steps-list">
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Find the critical value(s)</h4>
+                                <p>Based on α and test type (z or t table)</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Calculate the test statistic</h4>
+                                <p>Using the appropriate formula</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-content">
+                                <h4>Compare test stat to critical value</h4>
+                                <p>If test stat falls in rejection region, reject H₀</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3>📋 Critical Values Quick Reference</h3>
+                <table class="decision-table">
+                    <thead>
+                        <tr>
+                            <th>Test Type</th>
+                            <th>α = 0.10</th>
+                            <th>α = 0.05</th>
+                            <th>α = 0.01</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Two-Tailed (z)</td>
+                            <td>±1.645</td>
+                            <td>±1.96</td>
+                            <td>±2.576</td>
+                        </tr>
+                        <tr>
+                            <td>Left-Tailed (z)</td>
+                            <td>-1.28</td>
+                            <td>-1.645</td>
+                            <td>-2.33</td>
+                        </tr>
+                        <tr>
+                            <td>Right-Tailed (z)</td>
+                            <td>1.28</td>
+                            <td>1.645</td>
+                            <td>2.33</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="content-card">
+                <h3>✍️ Writing Proper Conclusions</h3>
+                
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    <div>
+                        <strong>When REJECTING H₀:</strong><br>
+                        "At the α = [level] significance level, there <strong>is</strong> sufficient evidence to [support/conclude] that [H₁ in plain English]."
+                    </div>
+                </div>
+
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⏸️</span>
+                    <div>
+                        <strong>When FAILING TO REJECT H₀:</strong><br>
+                        "At the α = [level] significance level, there <strong>is not</strong> sufficient evidence to [support/conclude] that [H₁ in plain English]."
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin-top: 1rem;">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Never say "Accept H₀"!</strong><br>
+                        Failing to reject H₀ does not mean H₀ is true — it only means we don't have enough evidence against it.
+                    </div>
+                </div>
+            </div>
+
+            <div class="example-box">
+                <div class="example-header">📝 Example Conclusions</div>
+                <div class="scenario">
+                    <strong>Scenario:</strong> Testing if mean battery life > 500 hours at α = 0.05<br>
+                    H₀: μ ≤ 500 &nbsp;&nbsp; H₁: μ > 500
+                </div>
+                <div class="two-column" style="margin-top: 1rem;">
+                    <div class="solution" style="background: rgba(34, 197, 94, 0.1);">
+                        <strong>If p-value = 0.02:</strong><br>
+                        Since 0.02 < 0.05, we reject H₀.<br><br>
+                        "At the 0.05 significance level, there is sufficient evidence to conclude that the mean battery life is greater than 500 hours."
+                    </div>
+                    <div class="solution" style="background: rgba(245, 158, 11, 0.1);">
+                        <strong>If p-value = 0.12:</strong><br>
+                        Since 0.12 > 0.05, we fail to reject H₀.<br><br>
+                        "At the 0.05 significance level, there is not sufficient evidence to conclude that the mean battery life is greater than 500 hours."
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Full Examples →</button>
+            </div>
+        </section>
+
+        <!-- Slide 6: Full Hypothesis Test Examples -->
+        <section class="slide" id="slide-6">
+            <div class="section-header">
+                <h2>📝 Complete Hypothesis Test Examples</h2>
+                <p>Step-by-step walkthroughs of hypothesis tests</p>
+            </div>
+
+            <div class="tabs-container">
+                <div class="tab-buttons">
+                    <button class="tab-btn active" onclick="switchTab(event, 'example-z')">Z-Test (Mean)</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'example-t')">T-Test (Mean)</button>
+                    <button class="tab-btn" onclick="switchTab(event, 'example-prop')">Z-Test (Proportion)</button>
+                </div>
+
+                <div class="tab-content active" id="example-z">
+                    <div class="walkthrough-container">
+                        <h4 style="margin-bottom: 1.5rem;">🔋 Example: Battery Life (Z-Test for Mean)</h4>
+                        
+                        <div class="example-box">
+                            <div class="scenario">
+                                <strong>Problem:</strong> A battery manufacturer claims their batteries last an average of 500 hours. The population standard deviation is known to be σ = 40 hours. A consumer group tests 64 batteries and finds a sample mean of 490 hours. At α = 0.05, test if the mean battery life is different from the claim.
+                            </div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 1: State the Hypotheses</h5>
+                            <p>We're testing if the mean is <em>different from</em> 500 (two-tailed).</p>
+                            <div class="hypothesis-statement">H₀: μ = 500 hours</div>
+                            <div class="hypothesis-statement">H₁: μ ≠ 500 hours</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 2: Identify the Test and Check Conditions</h5>
+                            <p>Use Z-test because:</p>
+                            <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>Population σ is known (σ = 40)</li>
+                                <li>Sample size n = 64 ≥ 30 ✓</li>
+                            </ul>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 3: Calculate the Test Statistic</h5>
+                            <div class="math-expression">z = (x̄ - μ₀) / (σ / √n)</div>
+                            <div class="math-expression">z = (490 - 500) / (40 / √64)</div>
+                            <div class="math-expression">z = -10 / (40 / 8) = -10 / 5 = -2.00</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 4: Find the P-Value</h5>
+                            <p>For a two-tailed test with z = -2.00:</p>
+                            <div class="math-expression">p-value = 2 × P(Z < -2.00) = 2 × 0.0228 = 0.0456</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 5: Make the Decision</h5>
+                            <p>Compare p-value to α:</p>
+                            <div class="math-expression">0.0456 < 0.05 → Reject H₀</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 6: State the Conclusion</h5>
+                            <div class="alert alert-success">
+                                <span class="alert-icon">✅</span>
+                                <div>At the 0.05 significance level, there <strong>is</strong> sufficient evidence to conclude that the mean battery life is different from 500 hours.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="example-t">
+                    <div class="walkthrough-container">
+                        <h4 style="margin-bottom: 1.5rem;">🧪 Example: Student Test Scores (T-Test for Mean)</h4>
+                        
+                        <div class="example-box">
+                            <div class="scenario">
+                                <strong>Problem:</strong> A teacher claims that a new teaching method improves student scores beyond the historical average of 75. A sample of 25 students using the new method has a mean score of 79 with a sample standard deviation of 8. At α = 0.05, test the teacher's claim.
+                            </div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 1: State the Hypotheses</h5>
+                            <p>We're testing if the mean is <em>greater than</em> 75 (right-tailed).</p>
+                            <div class="hypothesis-statement">H₀: μ ≤ 75</div>
+                            <div class="hypothesis-statement">H₁: μ > 75</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 2: Identify the Test and Check Conditions</h5>
+                            <p>Use T-test because:</p>
+                            <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>Population σ is unknown (using s = 8)</li>
+                                <li>n = 25 (assume population is approximately normal)</li>
+                                <li>Degrees of freedom: df = 25 - 1 = 24</li>
+                            </ul>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 3: Calculate the Test Statistic</h5>
+                            <div class="math-expression">t = (x̄ - μ₀) / (s / √n)</div>
+                            <div class="math-expression">t = (79 - 75) / (8 / √25)</div>
+                            <div class="math-expression">t = 4 / (8 / 5) = 4 / 1.6 = 2.50</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 4: Find the P-Value</h5>
+                            <p>For a right-tailed test with t = 2.50 and df = 24:</p>
+                            <div class="math-expression">p-value = P(T > 2.50) ≈ 0.0098</div>
+                            <p style="margin-top: 0.5rem; font-size: 0.9rem; color: rgba(255,255,255,0.7);">(Using t-table or calculator)</p>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 5: Make the Decision</h5>
+                            <p>Compare p-value to α:</p>
+                            <div class="math-expression">0.0098 < 0.05 → Reject H₀</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 6: State the Conclusion</h5>
+                            <div class="alert alert-success">
+                                <span class="alert-icon">✅</span>
+                                <div>At the 0.05 significance level, there <strong>is</strong> sufficient evidence to support the claim that the new teaching method improves student scores beyond 75.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="example-prop">
+                    <div class="walkthrough-container">
+                        <h4 style="margin-bottom: 1.5rem;">🗳️ Example: Voter Support (Z-Test for Proportion)</h4>
+                        
+                        <div class="example-box">
+                            <div class="scenario">
+                                <strong>Problem:</strong> A politician claims that at least 60% of voters support a new policy. A random sample of 200 voters shows that 108 support the policy. At α = 0.05, test if support is less than 60%.
+                            </div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 1: State the Hypotheses</h5>
+                            <p>We're testing if the proportion is <em>less than</em> 0.60 (left-tailed).</p>
+                            <div class="hypothesis-statement">H₀: p ≥ 0.60</div>
+                            <div class="hypothesis-statement">H₁: p < 0.60</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 2: Check Conditions</h5>
+                            <p>For Z-test for proportion:</p>
+                            <ul style="padding-left: 1.5rem; margin-top: 0.5rem;">
+                                <li>np₀ = 200 × 0.60 = 120 ≥ 5 ✓</li>
+                                <li>nq₀ = 200 × 0.40 = 80 ≥ 5 ✓</li>
+                            </ul>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 3: Calculate the Test Statistic</h5>
+                            <p>Sample proportion: p̂ = 108/200 = 0.54</p>
+                            <div class="math-expression">z = (p̂ - p₀) / √(p₀q₀ / n)</div>
+                            <div class="math-expression">z = (0.54 - 0.60) / √(0.60 × 0.40 / 200)</div>
+                            <div class="math-expression">z = -0.06 / √(0.0012) = -0.06 / 0.0346 = -1.73</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 4: Find the P-Value</h5>
+                            <p>For a left-tailed test with z = -1.73:</p>
+                            <div class="math-expression">p-value = P(Z < -1.73) = 0.0418</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 5: Make the Decision</h5>
+                            <p>Compare p-value to α:</p>
+                            <div class="math-expression">0.0418 < 0.05 → Reject H₀</div>
+                        </div>
+
+                        <div class="walkthrough-step">
+                            <h5>Step 6: State the Conclusion</h5>
+                            <div class="alert alert-success">
+                                <span class="alert-icon">✅</span>
+                                <div>At the 0.05 significance level, there <strong>is</strong> sufficient evidence to conclude that less than 60% of voters support the new policy.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Practice Problems →</button>
+            </div>
+        </section>
+
+        <!-- Slide 7: Practice Exercises -->
+        <section class="slide" id="slide-7">
+            <div class="section-header">
+                <h2>✏️ Practice Exercises</h2>
+                <p>Test your understanding with these problems</p>
+            </div>
+
+            <div class="interactive-section">
+                <h3>🎯 Practice: State the Hypotheses</h3>
+
+                <div class="practice-problem">
+                    <div class="problem-number">1</div>
+                    <div class="question">
+                        A coffee shop claims their average service time is 3 minutes. You believe it takes longer. State the null and alternative hypotheses.
+                    </div>
+                    <textarea class="practice-input" placeholder="Write H₀ and H₁ here..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>H₀: μ ≤ 3 minutes</strong><br>
+                        <strong>H₁: μ > 3 minutes</strong><br><br>
+                        This is a <strong>right-tailed test</strong> because we're testing if the mean is <em>greater than</em> the claimed value.
+                    </div>
+                </div>
+
+                <div class="practice-problem">
+                    <div class="problem-number">2</div>
+                    <div class="question">
+                        A pharmaceutical company claims their drug is effective for at least 80% of patients. The FDA wants to verify this claim. State the hypotheses.
+                    </div>
+                    <textarea class="practice-input" placeholder="Write H₀ and H₁ here..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>H₀: p ≥ 0.80</strong><br>
+                        <strong>H₁: p < 0.80</strong><br><br>
+                        This is a <strong>left-tailed test</strong>. The FDA wants to test if the effectiveness is <em>less than</em> claimed.
+                    </div>
+                </div>
+
+                <div class="practice-problem">
+                    <div class="problem-number">3</div>
+                    <div class="question">
+                        A factory produces bolts that should have a diameter of exactly 2.5 cm. Quality control wants to check if the production line is operating correctly. State the hypotheses.
+                    </div>
+                    <textarea class="practice-input" placeholder="Write H₀ and H₁ here..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>H₀: μ = 2.5 cm</strong><br>
+                        <strong>H₁: μ ≠ 2.5 cm</strong><br><br>
+                        This is a <strong>two-tailed test</strong> because we want to detect deviations in either direction.
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-section">
+                <h3>📊 Practice: Full Hypothesis Test</h3>
+
+                <div class="practice-problem">
+                    <div class="problem-number">4</div>
+                    <div class="question">
+                        A company claims their light bulbs last an average of 1000 hours. A consumer group tests 36 bulbs and finds a sample mean of 980 hours with a known population standard deviation of 60 hours. At α = 0.05, is there evidence that the bulbs last less than claimed?
+                        <br><br>
+                        Work through all 6 steps of the hypothesis test.
+                    </div>
+                    <textarea class="practice-input" style="min-height: 200px;" placeholder="Step 1: State hypotheses...&#10;Step 2: Identify test...&#10;Step 3: Calculate test statistic...&#10;Step 4: Find p-value...&#10;Step 5: Decision...&#10;Step 6: Conclusion..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>Step 1:</strong> H₀: μ ≥ 1000 &nbsp;&nbsp; H₁: μ < 1000 (left-tailed)<br><br>
+                        <strong>Step 2:</strong> Z-test (σ known = 60, n = 36 ≥ 30)<br><br>
+                        <strong>Step 3:</strong> z = (980 - 1000) / (60/√36) = -20/10 = <strong>-2.00</strong><br><br>
+                        <strong>Step 4:</strong> p-value = P(Z < -2.00) = <strong>0.0228</strong><br><br>
+                        <strong>Step 5:</strong> 0.0228 < 0.05 → <strong>Reject H₀</strong><br><br>
+                        <strong>Step 6:</strong> At the 0.05 significance level, there IS sufficient evidence to conclude that the light bulbs last less than 1000 hours on average.
+                    </div>
+                </div>
+
+                <div class="practice-problem">
+                    <div class="problem-number">5</div>
+                    <div class="question">
+                        A city claims that 40% of households recycle. An environmental group surveys 150 households and finds 72 that recycle. At α = 0.01, test if the proportion of recycling households is greater than 40%.
+                    </div>
+                    <textarea class="practice-input" style="min-height: 200px;" placeholder="Work through all 6 steps..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>Step 1:</strong> H₀: p ≤ 0.40 &nbsp;&nbsp; H₁: p > 0.40 (right-tailed)<br><br>
+                        <strong>Step 2:</strong> Z-test for proportion (np₀ = 60 ≥ 5, nq₀ = 90 ≥ 5) ✓<br><br>
+                        <strong>Step 3:</strong> p̂ = 72/150 = 0.48<br>
+                        z = (0.48 - 0.40) / √(0.40 × 0.60 / 150) = 0.08 / 0.04 = <strong>2.00</strong><br><br>
+                        <strong>Step 4:</strong> p-value = P(Z > 2.00) = <strong>0.0228</strong><br><br>
+                        <strong>Step 5:</strong> 0.0228 > 0.01 → <strong>Fail to reject H₀</strong><br><br>
+                        <strong>Step 6:</strong> At the 0.01 significance level, there is NOT sufficient evidence to conclude that more than 40% of households recycle.
+                    </div>
+                </div>
+            </div>
+
+            <div class="interactive-section">
+                <h3>⚠️ Practice: Type I and Type II Errors</h3>
+
+                <div class="practice-problem">
+                    <div class="problem-number">6</div>
+                    <div class="question">
+                        For the light bulb problem above (H₀: μ ≥ 1000, H₁: μ < 1000):
+                        <br>a) Describe what a Type I error would mean in this context.
+                        <br>b) Describe what a Type II error would mean in this context.
+                        <br>c) Which error would be more serious for consumers? Why?
+                    </div>
+                    <textarea class="practice-input" style="min-height: 150px;" placeholder="Describe both types of errors in context..."></textarea>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Show Answer</button>
+                    <div class="answer-reveal">
+                        <strong>a) Type I Error:</strong> Concluding that the bulbs last less than 1000 hours when they actually DO last at least 1000 hours. (False alarm - unfairly hurts the company's reputation)<br><br>
+                        <strong>b) Type II Error:</strong> Failing to conclude that the bulbs last less than 1000 hours when they actually DO last less. (Consumers continue buying bulbs thinking they last 1000 hours when they don't)<br><br>
+                        <strong>c)</strong> Type II error is more serious for consumers because they would be paying for bulbs that don't meet the advertised specification. The company benefits from the deception.
+                    </div>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="nextSlide()">Next: Take the Quiz →</button>
+            </div>
+        </section>
+
+        <!-- Slide 8: Quiz -->
+        <section class="slide" id="slide-8">
+            <div class="section-header">
+                <h2>🎯 Knowledge Check Quiz</h2>
+                <p>Test your understanding of hypothesis testing concepts</p>
+            </div>
+
+            <div class="quiz-container" id="quizContainer">
+                <div class="quiz-question" data-correct="c">
+                    <div class="q-number">Question 1 of 10</div>
+                    <div class="q-text">The null hypothesis (H₀) always contains:</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q1" value="a">
+                            <span class="option-marker"></span>
+                            <span>An inequality sign (< or >)</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q1" value="b">
+                            <span class="option-marker"></span>
+                            <span>The sample mean</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q1" value="c">
+                            <span class="option-marker"></span>
+                            <span>An equality (=, ≤, or ≥)</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q1" value="d">
+                            <span class="option-marker"></span>
+                            <span>A p-value</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="b">
+                    <div class="q-number">Question 2 of 10</div>
+                    <div class="q-text">A Type I error occurs when you:</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q2" value="a">
+                            <span class="option-marker"></span>
+                            <span>Fail to reject H₀ when H₀ is false</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q2" value="b">
+                            <span class="option-marker"></span>
+                            <span>Reject H₀ when H₀ is actually true</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q2" value="c">
+                            <span class="option-marker"></span>
+                            <span>Reject H₀ when H₀ is false</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q2" value="d">
+                            <span class="option-marker"></span>
+                            <span>Fail to reject H₀ when H₀ is true</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="a">
+                    <div class="q-number">Question 3 of 10</div>
+                    <div class="q-text">If the p-value is 0.03 and α = 0.05, you should:</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q3" value="a">
+                            <span class="option-marker"></span>
+                            <span>Reject H₀</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q3" value="b">
+                            <span class="option-marker"></span>
+                            <span>Fail to reject H₀</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q3" value="c">
+                            <span class="option-marker"></span>
+                            <span>Accept H₀</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q3" value="d">
+                            <span class="option-marker"></span>
+                            <span>Collect more data</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="b">
+                    <div class="q-number">Question 4 of 10</div>
+                    <div class="q-text">When should you use a t-distribution instead of a z-distribution for testing a population mean?</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q4" value="a">
+                            <span class="option-marker"></span>
+                            <span>When testing a proportion</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q4" value="b">
+                            <span class="option-marker"></span>
+                            <span>When the population standard deviation is unknown</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q4" value="c">
+                            <span class="option-marker"></span>
+                            <span>When n > 30</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q4" value="d">
+                            <span class="option-marker"></span>
+                            <span>When testing a two-tailed hypothesis</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="d">
+                    <div class="q-number">Question 5 of 10</div>
+                    <div class="q-text">A researcher wants to test if the mean IQ score is greater than 100. Which alternative hypothesis is correct?</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q5" value="a">
+                            <span class="option-marker"></span>
+                            <span>H₁: μ = 100</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q5" value="b">
+                            <span class="option-marker"></span>
+                            <span>H₁: μ < 100</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q5" value="c">
+                            <span class="option-marker"></span>
+                            <span>H₁: μ ≠ 100</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q5" value="d">
+                            <span class="option-marker"></span>
+                            <span>H₁: μ > 100</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="c">
+                    <div class="q-number">Question 6 of 10</div>
+                    <div class="q-text">The symbol β (beta) represents the probability of:</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q6" value="a">
+                            <span class="option-marker"></span>
+                            <span>Type I error</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q6" value="b">
+                            <span class="option-marker"></span>
+                            <span>Rejecting H₀ when it's false</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q6" value="c">
+                            <span class="option-marker"></span>
+                            <span>Type II error</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q6" value="d">
+                            <span class="option-marker"></span>
+                            <span>The significance level</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="b">
+                    <div class="q-number">Question 7 of 10</div>
+                    <div class="q-text">For a two-tailed z-test at α = 0.05, the critical values are:</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q7" value="a">
+                            <span class="option-marker"></span>
+                            <span>±1.645</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q7" value="b">
+                            <span class="option-marker"></span>
+                            <span>±1.96</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q7" value="c">
+                            <span class="option-marker"></span>
+                            <span>±2.33</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q7" value="d">
+                            <span class="option-marker"></span>
+                            <span>±2.576</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="a">
+                    <div class="q-number">Question 8 of 10</div>
+                    <div class="q-text">To use a z-test for a population proportion, which condition must be met?</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q8" value="a">
+                            <span class="option-marker"></span>
+                            <span>np ≥ 5 and nq ≥ 5</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q8" value="b">
+                            <span class="option-marker"></span>
+                            <span>n ≥ 30 only</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q8" value="c">
+                            <span class="option-marker"></span>
+                            <span>σ must be known</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q8" value="d">
+                            <span class="option-marker"></span>
+                            <span>Population must be normal</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="c">
+                    <div class="q-number">Question 9 of 10</div>
+                    <div class="q-text">What is the correct interpretation when we "fail to reject H₀"?</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q9" value="a">
+                            <span class="option-marker"></span>
+                            <span>We proved H₀ is true</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q9" value="b">
+                            <span class="option-marker"></span>
+                            <span>We accept H₀ as fact</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q9" value="c">
+                            <span class="option-marker"></span>
+                            <span>We don't have sufficient evidence to reject H₀</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q9" value="d">
+                            <span class="option-marker"></span>
+                            <span>We proved H₁ is false</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="quiz-question" data-correct="d">
+                    <div class="q-number">Question 10 of 10</div>
+                    <div class="q-text">In a court trial analogy where H₀: "defendant is innocent", what represents a Type II error?</div>
+                    <div class="quiz-options">
+                        <label class="quiz-option">
+                            <input type="radio" name="q10" value="a">
+                            <span class="option-marker"></span>
+                            <span>Convicting an innocent person</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q10" value="b">
+                            <span class="option-marker"></span>
+                            <span>Correctly convicting a guilty person</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q10" value="c">
+                            <span class="option-marker"></span>
+                            <span>Correctly acquitting an innocent person</span>
+                        </label>
+                        <label class="quiz-option">
+                            <input type="radio" name="q10" value="d">
+                            <span class="option-marker"></span>
+                            <span>Letting a guilty person go free</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="quiz-submit" onclick="submitQuiz()">Submit Quiz</button>
+                </div>
+
+                <div class="quiz-results" id="quizResults">
+                    <div class="score-circle">
+                        <span class="score" id="scoreDisplay">0/10</span>
+                        <span class="label">Score</span>
+                    </div>
+                    <div class="quiz-feedback" id="quizFeedback"></div>
+                    <button class="retry-btn" onclick="retryQuiz()">Try Again</button>
+                </div>
+            </div>
+
+            <div class="slide-nav">
+                <button class="nav-btn prev" onclick="prevSlide()">← Previous</button>
+                <button class="nav-btn next" onclick="goToSlide(0)">🏠 Back to Home</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Slide Navigation
+        let currentSlide = 0;
+        const totalSlides = 9;
+
+        function updateProgress() {
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            // Update nav pills
+            document.querySelectorAll('.nav-pill').forEach((pill, index) => {
+                pill.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function showSlide(index) {
+            document.querySelectorAll('.slide').forEach((slide, i) => {
+                slide.classList.toggle('active', i === index);
+            });
+            currentSlide = index;
+            updateProgress();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                showSlide(currentSlide - 1);
+            }
+        }
+
+        function goToSlide(index) {
+            showSlide(index);
+        }
+
+        // Tab Switching
+        function switchTab(event, tabId) {
+            const container = event.target.closest('.tabs-container');
+            
+            container.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            container.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            container.querySelector('#' + tabId).classList.add('active');
+        }
+
+        // Practice Answer Toggle
+        function toggleAnswer(button) {
+            const answer = button.nextElementSibling;
+            answer.classList.toggle('show');
+            button.textContent = answer.classList.contains('show') ? 'Hide Answer' : 'Show Answer';
+        }
+
+        // Quiz Functionality
+        function submitQuiz() {
+            const questions = document.querySelectorAll('.quiz-question');
+            let score = 0;
+            
+            questions.forEach((question, index) => {
+                const correct = question.dataset.correct;
+                const selected = question.querySelector('input:checked');
+                const options = question.querySelectorAll('.quiz-option');
+                
+                options.forEach(option => {
+                    option.classList.remove('correct', 'incorrect', 'selected');
+                    const input = option.querySelector('input');
+                    if (input.value === correct) {
+                        option.classList.add('correct');
+                    }
+                    if (selected && input === selected) {
+                        if (input.value === correct) {
+                            score++;
+                        } else {
+                            option.classList.add('incorrect');
+                        }
+                    }
+                });
+            });
+
+            // Show results
+            document.getElementById('scoreDisplay').textContent = score + '/10';
+            
+            let feedback = '';
+            if (score === 10) {
+                feedback = '🎉 Perfect! You\'ve mastered hypothesis testing!';
+            } else if (score >= 8) {
+                feedback = '👏 Excellent work! You have a strong understanding!';
+            } else if (score >= 6) {
+                feedback = '👍 Good job! Review the topics you missed.';
+            } else if (score >= 4) {
+                feedback = '📚 Keep studying! Review the examples and try again.';
+            } else {
+                feedback = '💪 Don\'t give up! Go through the material again.';
+            }
+            
+            document.getElementById('quizFeedback').textContent = feedback;
+            document.getElementById('quizResults').classList.add('show');
+            
+            // Disable submit button
+            document.querySelector('.quiz-submit').disabled = true;
+            document.querySelector('.quiz-submit').style.opacity = '0.5';
+        }
+
+        function retryQuiz() {
+            // Reset all options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('correct', 'incorrect', 'selected');
+            });
+            
+            // Clear selections
+            document.querySelectorAll('.quiz-question input').forEach(input => {
+                input.checked = false;
+            });
+            
+            // Hide results
+            document.getElementById('quizResults').classList.remove('show');
+            
+            // Re-enable submit
+            document.querySelector('.quiz-submit').disabled = false;
+            document.querySelector('.quiz-submit').style.opacity = '1';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Quiz option selection styling
+        document.querySelectorAll('.quiz-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const question = this.closest('.quiz-question');
+                question.querySelectorAll('.quiz-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Initialize
+        updateProgress();
+    </script>
+</body>
+</html>
