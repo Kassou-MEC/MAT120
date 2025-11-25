@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confidence Intervals for the Mean</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: purple;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin: 25px 0 15px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 8px;
+        }
+        
+        h3 {
+            color: var(--secondary);
+            margin: 20px 0 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .nav-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            background: #f1f1f1;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .graph-container {
+            height: 400px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .formula {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+        }
+        
+        .highlight {
+            background-color: #fff9c4;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .interactive-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background: var(--primary);
+            color: purple;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .exercise {
+            background: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .quiz-question {
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .options {
+            margin: 15px 0;
+        }
+        
+        .option {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .option:hover {
+            background: #e9ecef;
+        }
+        
+        .option.selected {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .correct {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .incorrect {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .feedback {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        
+        .results {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+        }
+        
+        .key-point {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                margin-bottom: 5px;
+                border-radius: 5px;
+            }
+            
+            .interactive-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MAT120 Prof. Khalid Kassou</h1>
+
+            <h1>Confidence Intervals for the Mean</h1>
+            <p>Understanding how to estimate population parameters from sample data</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="tab active" onclick="openTab(event, 'intro')">Introduction</button>
+            <button class="tab" onclick="openTab(event, 'normal')">Normal Distribution</button>
+            <button class="tab" onclick="openTab(event, 'student-t')">Student t-Distribution</button>
+            <button class="tab" onclick="openTab(event, 'comparison')">Comparison</button>
+            <button class="tab" onclick="openTab(event, 'practice')">Practice</button>
+            <button class="tab" onclick="openTab(event, 'quiz')">Quiz</button>
+        </div>
+        
+        <div id="intro" class="tab-content active">
+            <div class="card">
+                <h2>What is a Confidence Interval?</h2>
+                <p>A confidence interval is a range of values that is likely to contain the true population parameter with a certain level of confidence. It provides an estimate of the uncertainty associated with a sample statistic.</p>
+                
+                <div class="key-point">
+                    <h3>Key Components:</h3>
+                    <ul>
+                        <li><span class="highlight">Point Estimate</span>: The sample statistic (e.g., sample mean)</li>
+                        <li><span class="highlight">Margin of Error</span>: The range around the point estimate</li>
+                        <li><span class="highlight">Confidence Level</span>: The probability that the interval contains the true parameter (e.g., 95%)</li>
+                    </ul>
+                </div>
+                
+                <h3>General Formula for Confidence Interval:</h3>
+                <div class="formula">
+                    Confidence Interval = Point Estimate ± (Critical Value) × (Standard Error)
+                </div>
+                
+                <p>For a population mean, this becomes:</p>
+                <div class="formula">
+                    CI = x̄ ± (z* or t*) × (σ/√n or s/√n)
+                </div>
+                
+                <p>Where:</p>
+                <ul>
+                    <li><strong>x̄</strong> = sample mean</li>
+                    <li><strong>z*</strong> = critical value from the standard normal distribution</li>
+                    <li><strong>t*</strong> = critical value from the t-distribution</li>
+                    <li><strong>σ</strong> = population standard deviation (if known)</li>
+                    <li><strong>s</strong> = sample standard deviation</li>
+                    <li><strong>n</strong> = sample size</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>Understanding Confidence Level and Alpha (α)</h2>
+                <p>The confidence level (1 - α) represents the probability that the confidence interval contains the true population parameter. The significance level α is the probability that the interval does not contain the parameter.</p>
+                
+                <div class="graph-container">
+                    <canvas id="introChart"></canvas>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <label for="confidenceLevel">Confidence Level:</label>
+                        <select id="confidenceLevel" onchange="updateIntroChart()">
+                            <option value="0.90">90%</option>
+                            <option value="0.95" selected>95%</option>
+                            <option value="0.99">99%</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <p>For a <span id="confLevelText">95%</span> confidence interval, α = <span id="alphaText">0.05</span>, which means there's a <span id="confLevelText2">95%</span> chance that the interval contains the true population mean.</p>
+                <p>The rejection regions (each with area α/2 = <span id="alphaHalfText">0.025</span>) represent the extreme values where we would reject the null hypothesis if conducting a hypothesis test.</p>
+            </div>
+        </div>
+        
+        <div id="normal" class="tab-content">
+            <div class="card">
+                <h2>Confidence Interval for Mean (Normal Distribution)</h2>
+                <p>When the population standard deviation (σ) is known, we use the standard normal distribution (z-distribution) to construct confidence intervals for the population mean.</p>
+                
+                <h3>When to Use:</h3>
+                <ul>
+                    <li>Population standard deviation (σ) is known</li>
+                    <li>Sample size is large (n ≥ 30) - thanks to the Central Limit Theorem</li>
+                    <li>Population is normally distributed</li>
+                </ul>
+                
+                <h3>Formula:</h3>
+                <div class="formula">
+                    CI = x̄ ± z<sub>α/2</sub> × (σ/√n)
+                </div>
+                
+                <p>Where z<sub>α/2</sub> is the critical value from the standard normal distribution corresponding to the desired confidence level.</p>
+                
+                <div class="graph-container">
+                    <canvas id="normalChart"></canvas>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <label for="normalConfidence">Confidence Level:</label>
+                        <select id="normalConfidence" onchange="updateNormalChart()">
+                            <option value="0.90">90%</option>
+                            <option value="0.95" selected>95%</option>
+                            <option value="0.99">99%</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="normalMean">Sample Mean (x̄):</label>
+                        <input type="number" id="normalMean" value="50" step="0.1" onchange="updateNormalChart()">
+                    </div>
+                    <div class="control-group">
+                        <label for="normalStdDev">Population Std Dev (σ):</label>
+                        <input type="number" id="normalStdDev" value="10" step="0.1" onchange="updateNormalChart()">
+                    </div>
+                    <div class="control-group">
+                        <label for="normalSampleSize">Sample Size (n):</label>
+                        <input type="number" id="normalSampleSize" value="30" min="1" onchange="updateNormalChart()">
+                    </div>
+                </div>
+                
+                <div class="results">
+                    <h3>Calculated Confidence Interval:</h3>
+                    <p id="normalCIResult">[47.42, 52.58]</p>
+                    <p>Standard Error: <span id="normalSE">1.83</span></p>
+                    <p>Margin of Error: <span id="normalME">2.58</span></p>
+                    <p>Critical Value (z*): <span id="normalCriticalValue">1.96</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="student-t" class="tab-content">
+            <div class="card">
+                <h2>Confidence Interval for Mean (Student t-Distribution)</h2>
+                <p>When the population standard deviation (σ) is unknown, we use the sample standard deviation (s) and the t-distribution to construct confidence intervals for the population mean.</p>
+                
+                <h3>When to Use:</h3>
+                <ul>
+                    <li>Population standard deviation (σ) is unknown</li>
+                    <li>Sample size is small (n < 30)</li>
+                    <li>Population is approximately normally distributed</li>
+                </ul>
+                
+                <h3>Formula:</h3>
+                <div class="formula">
+                    CI = x̄ ± t<sub>α/2, df</sub> × (s/√n)
+                </div>
+                
+                <p>Where t<sub>α/2, df</sub> is the critical value from the t-distribution with df = n-1 degrees of freedom, corresponding to the desired confidence level.</p>
+                
+                <div class="graph-container">
+                    <canvas id="tChart"></canvas>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <label for="tConfidence">Confidence Level:</label>
+                        <select id="tConfidence" onchange="updateTChart()">
+                            <option value="0.90">90%</option>
+                            <option value="0.95" selected>95%</option>
+                            <option value="0.99">99%</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="tMean">Sample Mean (x̄):</label>
+                        <input type="number" id="tMean" value="50" step="0.1" onchange="updateTChart()">
+                    </div>
+                    <div class="control-group">
+                        <label for="tStdDev">Sample Std Dev (s):</label>
+                        <input type="number" id="tStdDev" value="10" step="0.1" onchange="updateTChart()">
+                    </div>
+                    <div class="control-group">
+                        <label for="tSampleSize">Sample Size (n):</label>
+                        <input type="number" id="tSampleSize" value="15" min="2" onchange="updateTChart()">
+                    </div>
+                </div>
+                
+                <div class="results">
+                    <h3>Calculated Confidence Interval:</h3>
+                    <p id="tCIResult">[44.57, 55.43]</p>
+                    <p>Standard Error: <span id="tSE">2.58</span></p>
+                    <p>Margin of Error: <span id="tME">5.43</span></p>
+                    <p>Critical Value (t*): <span id="tCriticalValue">2.145</span></p>
+                    <p>Degrees of Freedom: <span id="tDF">14</span></p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="comparison" class="tab-content">
+            <div class="card">
+                <h2>Comparison: Normal vs. t-Distribution</h2>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Normal Distribution (z)</th>
+                            <th>Student t-Distribution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>When to Use</td>
+                            <td>σ known OR n ≥ 30</td>
+                            <td>σ unknown AND n < 30</td>
+                        </tr>
+                        <tr>
+                            <td>Critical Value</td>
+                            <td>z* (from standard normal)</td>
+                            <td>t* (from t-distribution with df = n-1)</td>
+                        </tr>
+                        <tr>
+                            <td>Standard Deviation</td>
+                            <td>Population σ</td>
+                            <td>Sample s</td>
+                        </tr>
+                        <tr>
+                            <td>Shape</td>
+                            <td>Fixed, bell-shaped</td>
+                            <td>Varies with degrees of freedom</td>
+                        </tr>
+                        <tr>
+                            <td>Tails</td>
+                            <td>Thinner tails</td>
+                            <td>Thicker tails (more uncertainty)</td>
+                        </tr>
+                        <tr>
+                            <td>As n increases</td>
+                            <td>No change in distribution</td>
+                            <td>Approaches normal distribution</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <div class="graph-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                
+                <div class="interactive-controls">
+                    <div class="control-group">
+                        <label for="comparisonDF">Degrees of Freedom: <span id="dfValue">5</span></label>
+                        <input type="range" id="comparisonDF" min="1" max="30" value="5" onchange="updateComparisonChart()">
+                    </div>
+                </div>
+                
+                <div class="key-point">
+                    <h3>Key Insight:</h3>
+                    <p>As the sample size increases, the t-distribution approaches the normal distribution. For large sample sizes (n ≥ 30), the difference between using z* and t* becomes negligible.</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="practice" class="tab-content">
+            <div class="card">
+                <h2>Practice Exercises</h2>
+                
+                <div class="exercise">
+                    <h3>Exercise 1: Normal Distribution</h3>
+                    <p>A sample of 50 students has a mean test score of 78. The population standard deviation is known to be 10. Construct a 95% confidence interval for the population mean test score.</p>
+                    
+                    <div class="interactive-controls">
+                        <div class="control-group">
+                            <label for="ex1Mean">Sample Mean (x̄):</label>
+                            <input type="number" id="ex1Mean" value="78" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex1StdDev">Population Std Dev (σ):</label>
+                            <input type="number" id="ex1StdDev" value="10" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex1SampleSize">Sample Size (n):</label>
+                            <input type="number" id="ex1SampleSize" value="50" min="1">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex1Confidence">Confidence Level:</label>
+                            <select id="ex1Confidence">
+                                <option value="0.90">90%</option>
+                                <option value="0.95" selected>95%</option>
+                                <option value="0.99">99%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculateExercise1()">Calculate</button>
+                    
+                    <div id="ex1Result" class="results" style="display: none;">
+                        <h3>Solution:</h3>
+                        <p>Standard Error = σ/√n = <span id="ex1SE"></span></p>
+                        <p>Critical Value (z*) = <span id="ex1Critical"></span></p>
+                        <p>Margin of Error = z* × SE = <span id="ex1ME"></span></p>
+                        <p>Confidence Interval = x̄ ± ME = [<span id="ex1Lower"></span>, <span id="ex1Upper"></span>]</p>
+                    </div>
+                </div>
+                
+                <div class="exercise">
+                    <h3>Exercise 2: t-Distribution</h3>
+                    <p>A sample of 12 measurements has a mean of 25.4 and a standard deviation of 3.1. Construct a 99% confidence interval for the population mean.</p>
+                    
+                    <div class="interactive-controls">
+                        <div class="control-group">
+                            <label for="ex2Mean">Sample Mean (x̄):</label>
+                            <input type="number" id="ex2Mean" value="25.4" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex2StdDev">Sample Std Dev (s):</label>
+                            <input type="number" id="ex2StdDev" value="3.1" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex2SampleSize">Sample Size (n):</label>
+                            <input type="number" id="ex2SampleSize" value="12" min="2">
+                        </div>
+                        <div class="control-group">
+                            <label for="ex2Confidence">Confidence Level:</label>
+                            <select id="ex2Confidence">
+                                <option value="0.90">90%</option>
+                                <option value="0.95">95%</option>
+                                <option value="0.99" selected>99%</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button onclick="calculateExercise2()">Calculate</button>
+                    
+                    <div id="ex2Result" class="results" style="display: none;">
+                        <h3>Solution:</h3>
+                        <p>Degrees of Freedom = n - 1 = <span id="ex2DF"></span></p>
+                        <p>Standard Error = s/√n = <span id="ex2SE"></span></p>
+                        <p>Critical Value (t*) = <span id="ex2Critical"></span></p>
+                        <p>Margin of Error = t* × SE = <span id="ex2ME"></span></p>
+                        <p>Confidence Interval = x̄ ± ME = [<span id="ex2Lower"></span>, <span id="ex2Upper"></span>]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="quiz" class="tab-content">
+            <div class="card">
+                <h2>Multiple Choice Quiz</h2>
+                <p>Test your understanding of confidence intervals. Select the best answer for each question.</p>
+                
+                <div class="quiz-question">
+                    <h3>Question 1:</h3>
+                    <p>What does a 95% confidence interval for a population mean indicate?</p>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 1)">A) There is a 95% probability that the population mean falls within the interval</div>
+                        <div class="option" onclick="selectOption(this, 1)">B) 95% of the sample means fall within the interval</div>
+                        <div class="option" onclick="selectOption(this, 1)">C) If we repeated the sampling process many times, 95% of the intervals would contain the population mean</div>
+                        <div class="option" onclick="selectOption(this, 1)">D) The population mean is exactly at the center of the interval</div>
+                    </div>
+                    <div class="feedback" id="feedback1"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>Question 2:</h3>
+                    <p>When should you use the t-distribution instead of the normal distribution for a confidence interval?</p>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 2)">A) When the sample size is large (n ≥ 30)</div>
+                        <div class="option" onclick="selectOption(this, 2)">B) When the population standard deviation is known</div>
+                        <div class="option" onclick="selectOption(this, 2)">C) When the population standard deviation is unknown and the sample size is small</div>
+                        <div class="option" onclick="selectOption(this, 2)">D) When the data is not normally distributed</div>
+                    </div>
+                    <div class="feedback" id="feedback2"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>Question 3:</h3>
+                    <p>What happens to the width of a confidence interval when the sample size increases?</p>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 3)">A) It becomes wider</div>
+                        <div class="option" onclick="selectOption(this, 3)">B) It becomes narrower</div>
+                        <div class="option" onclick="selectOption(this, 3)">C) It stays the same</div>
+                        <div class="option" onclick="selectOption(this, 3)">D) It depends on the confidence level</div>
+                    </div>
+                    <div class="feedback" id="feedback3"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>Question 4:</h3>
+                    <p>For a 90% confidence interval, what is the value of α?</p>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 4)">A) 0.01</div>
+                        <div class="option" onclick="selectOption(this, 4)">B) 0.05</div>
+                        <div class="option" onclick="selectOption(this, 4)">C) 0.10</div>
+                        <div class="option" onclick="selectOption(this, 4)">D) 0.90</div>
+                    </div>
+                    <div class="feedback" id="feedback4"></div>
+                </div>
+                
+                <div class="quiz-question">
+                    <h3>Question 5:</h3>
+                    <p>What is the relationship between the confidence level and the margin of error?</p>
+                    <div class="options">
+                        <div class="option" onclick="selectOption(this, 5)">A) Higher confidence level leads to smaller margin of error</div>
+                        <div class="option" onclick="selectOption(this, 5)">B) Higher confidence level leads to larger margin of error</div>
+                        <div class="option" onclick="selectOption(this, 5)">C) There is no relationship between them</div>
+                        <div class="option" onclick="selectOption(this, 5)">D) The relationship depends on the sample size</div>
+                    </div>
+                    <div class="feedback" id="feedback5"></div>
+                </div>
+                
+                <button onclick="checkQuiz()" style="margin-top: 20px;">Check Answers</button>
+                <button onclick="resetQuiz()" style="margin-top: 10px; background: #6c757d;">Reset Quiz</button>
+                
+                <div id="quizResults" class="results" style="display: none;">
+                    <h3>Your Score: <span id="score">0</span>/5</h3>
+                    <p id="quizMessage"></p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Interactive Presentation on Confidence Intervals for the Mean</p>
+            <p>© Khalid Kassou</p>
+        </footer>
+    </div>
+
+    <script>
+        // Tab navigation - Fixed to accept event parameter
+        function openTab(evt, tabName) {
+            const tabs = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            const tabButtons = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove('active');
+            }
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            
+            // Update charts when switching to their tabs
+            setTimeout(() => {
+                if (tabName === 'intro') updateIntroChart();
+                if (tabName === 'normal') updateNormalChart();
+                if (tabName === 'student-t') updateTChart();
+                if (tabName === 'comparison') updateComparisonChart();
+            }, 100);
+        }
+
+        // Critical values for normal distribution
+        const zValues = {
+            0.90: 1.645,
+            0.95: 1.96,
+            0.99: 2.576
+        };
+
+        // Critical values for t-distribution (for common df values)
+        const tValues = {
+            1: {0.90: 6.314, 0.95: 12.706, 0.99: 63.657},
+            2: {0.90: 2.920, 0.95: 4.303, 0.99: 9.925},
+            3: {0.90: 2.353, 0.95: 3.182, 0.99: 5.841},
+            4: {0.90: 2.132, 0.95: 2.776, 0.99: 4.604},
+            5: {0.90: 2.015, 0.95: 2.571, 0.99: 4.032},
+            6: {0.90: 1.943, 0.95: 2.447, 0.99: 3.707},
+            7: {0.90: 1.895, 0.95: 2.365, 0.99: 3.499},
+            8: {0.90: 1.860, 0.95: 2.306, 0.99: 3.355},
+            9: {0.90: 1.833, 0.95: 2.262, 0.99: 3.250},
+            10: {0.90: 1.812, 0.95: 2.228, 0.99: 3.169},
+            11: {0.90: 1.796, 0.95: 2.201, 0.99: 3.106},
+            12: {0.90: 1.782, 0.95: 2.179, 0.99: 3.055},
+            13: {0.90: 1.771, 0.95: 2.160, 0.99: 3.012},
+            14: {0.90: 1.761, 0.95: 2.145, 0.99: 2.977},
+            15: {0.90: 1.753, 0.95: 2.131, 0.99: 2.947},
+            20: {0.90: 1.725, 0.95: 2.086, 0.99: 2.845},
+            25: {0.90: 1.708, 0.95: 2.060, 0.99: 2.787},
+            30: {0.90: 1.697, 0.95: 2.042, 0.99: 2.750},
+            Infinity: {0.90: 1.645, 0.95: 1.96, 0.99: 2.576}
+        };
+
+        // Get t-critical value for given df and confidence level
+        function getTCritical(df, confidence) {
+            if (df > 30) {
+                return zValues[confidence];
+            }
+            
+            const availableDF = Object.keys(tValues).map(Number).filter(d => d <= df);
+            const closestDF = availableDF.length > 0 ? Math.max(...availableDF) : 1;
+            
+            return tValues[closestDF][confidence];
+        }
+
+        // Normal PDF function
+        function normalPDF(x, mean = 0, std = 1) {
+            return (1 / (std * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / std, 2));
+        }
+
+        // Beta function approximation (for t-distribution)
+        function beta(a, b) {
+            return Math.exp(lgamma(a) + lgamma(b) - lgamma(a + b));
+        }
+        
+        // Log gamma function approximation
+        function lgamma(x) {
+            const logSqrt2Pi = 0.91893853320467274178;
+            const coef = [
+                76.18009172947146,
+                -86.50532032941677,
+                24.01409824083091,
+                -1.231739572450155,
+                0.1208650973866179e-2,
+                -0.5395239384953e-5
+            ];
+            
+            let y = x;
+            let tmp = x + 5.5;
+            tmp -= (x + 0.5) * Math.log(tmp);
+            let ser = 1.000000000190015;
+            
+            for (let j = 0; j <= 5; j++) {
+                y += 1;
+                ser += coef[j] / y;
+            }
+            
+            return -tmp + logSqrt2Pi + Math.log(ser * 2.5066282746310005 / x);
+        }
+
+        // t-distribution PDF
+        function tPDF(t, df) {
+            const coeff = 1 / (Math.sqrt(df) * beta(0.5, df / 2));
+            return coeff * Math.pow(1 + (t * t) / df, -(df + 1) / 2);
+        }
+
+        // Introduction Chart
+        let introChart;
+        function updateIntroChart() {
+            const confidenceLevel = parseFloat(document.getElementById('confidenceLevel').value);
+            const alpha = 1 - confidenceLevel;
+            const alphaHalf = alpha / 2;
+            
+            document.getElementById('confLevelText').textContent = `${confidenceLevel * 100}%`;
+            document.getElementById('confLevelText2').textContent = `${confidenceLevel * 100}%`;
+            document.getElementById('alphaText').textContent = alpha.toFixed(2);
+            document.getElementById('alphaHalfText').textContent = alphaHalf.toFixed(3);
+            
+            const ctx = document.getElementById('introChart').getContext('2d');
+            
+            if (introChart) {
+                introChart.destroy();
+            }
+            
+            const zCritical = zValues[confidenceLevel];
+            
+            // Create data points
+            const labels = [];
+            const fullCurve = [];
+            const confidenceArea = [];
+            const leftTail = [];
+            const rightTail = [];
+            
+            for (let x = -4; x <= 4; x += 0.1) {
+                const y = normalPDF(x);
+                labels.push(x.toFixed(1));
+                fullCurve.push(y);
+                
+                if (x >= -zCritical && x <= zCritical) {
+                    confidenceArea.push(y);
+                } else {
+                    confidenceArea.push(0);
+                }
+                
+                if (x < -zCritical) {
+                    leftTail.push(y);
+                } else {
+                    leftTail.push(0);
+                }
+                
+                if (x > zCritical) {
+                    rightTail.push(y);
+                } else {
+                    rightTail.push(0);
+                }
+            }
+            
+            introChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Normal Distribution',
+                            data: fullCurve,
+                            borderColor: '#3498db',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `Confidence Region (${confidenceLevel * 100}%)`,
+                            data: confidenceArea,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(46, 204, 113, 0.5)',
+                            borderWidth: 0,
+                            fill: true,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `Left Tail (α/2 = ${alphaHalf.toFixed(3)})`,
+                            data: leftTail,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(231, 76, 60, 0.5)',
+                            borderWidth: 0,
+                            fill: true,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `Right Tail (α/2 = ${alphaHalf.toFixed(3)})`,
+                            data: rightTail,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(231, 76, 60, 0.5)',
+                            borderWidth: 0,
+                            fill: true,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Z-score'
+                            },
+                            ticks: {
+                                maxTicksLimit: 9
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `Standard Normal Distribution with ${confidenceLevel * 100}% Confidence Region`,
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Normal Distribution Chart
+        let normalChart;
+        function updateNormalChart() {
+            const confidenceLevel = parseFloat(document.getElementById('normalConfidence').value);
+            const mean = parseFloat(document.getElementById('normalMean').value);
+            const stdDev = parseFloat(document.getElementById('normalStdDev').value);
+            const sampleSize = parseInt(document.getElementById('normalSampleSize').value);
+            
+            const zCritical = zValues[confidenceLevel];
+            const standardError = stdDev / Math.sqrt(sampleSize);
+            const marginOfError = zCritical * standardError;
+            const lowerBound = mean - marginOfError;
+            const upperBound = mean + marginOfError;
+            
+            // Update results display
+            document.getElementById('normalCIResult').textContent = `[${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}]`;
+            document.getElementById('normalSE').textContent = standardError.toFixed(2);
+            document.getElementById('normalME').textContent = marginOfError.toFixed(2);
+            document.getElementById('normalCriticalValue').textContent = zCritical;
+            
+            const ctx = document.getElementById('normalChart').getContext('2d');
+            
+            if (normalChart) {
+                normalChart.destroy();
+            }
+            
+            // Create data points using standard error for the sampling distribution
+            const labels = [];
+            const fullCurve = [];
+            const confidenceArea = [];
+            
+            const range = 4 * standardError;
+            const step = range / 40;
+            
+            for (let x = mean - range; x <= mean + range; x += step) {
+                labels.push(x.toFixed(1));
+                const y = normalPDF(x, mean, standardError);
+                fullCurve.push(y);
+                
+                if (x >= lowerBound && x <= upperBound) {
+                    confidenceArea.push(y);
+                } else {
+                    confidenceArea.push(0);
+                }
+            }
+            
+            normalChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sampling Distribution',
+                            data: fullCurve,
+                            borderColor: '#3498db',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `${confidenceLevel * 100}% Confidence Interval`,
+                            data: confidenceArea,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(46, 204, 113, 0.5)',
+                            borderWidth: 0,
+                            fill: true,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            },
+                            ticks: {
+                                maxTicksLimit: 9
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `${confidenceLevel * 100}% CI: [${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}]`,
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // t-Distribution Chart
+        let tChart;
+        function updateTChart() {
+            const confidenceLevel = parseFloat(document.getElementById('tConfidence').value);
+            const mean = parseFloat(document.getElementById('tMean').value);
+            const stdDev = parseFloat(document.getElementById('tStdDev').value);
+            const sampleSize = parseInt(document.getElementById('tSampleSize').value);
+            
+            const df = sampleSize - 1;
+            const tCritical = getTCritical(df, confidenceLevel);
+            const standardError = stdDev / Math.sqrt(sampleSize);
+            const marginOfError = tCritical * standardError;
+            const lowerBound = mean - marginOfError;
+            const upperBound = mean + marginOfError;
+            
+            // Update results display
+            document.getElementById('tCIResult').textContent = `[${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}]`;
+            document.getElementById('tSE').textContent = standardError.toFixed(2);
+            document.getElementById('tME').textContent = marginOfError.toFixed(2);
+            document.getElementById('tCriticalValue').textContent = tCritical.toFixed(3);
+            document.getElementById('tDF').textContent = df;
+            
+            const ctx = document.getElementById('tChart').getContext('2d');
+            
+            if (tChart) {
+                tChart.destroy();
+            }
+            
+            // Create data points
+            const labels = [];
+            const fullCurve = [];
+            const confidenceArea = [];
+            
+            for (let t = -4; t <= 4; t += 0.1) {
+                labels.push(t.toFixed(1));
+                const y = tPDF(t, df);
+                fullCurve.push(y);
+                
+                if (t >= -tCritical && t <= tCritical) {
+                    confidenceArea.push(y);
+                } else {
+                    confidenceArea.push(0);
+                }
+            }
+            
+            tChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: `t-Distribution (df = ${df})`,
+                            data: fullCurve,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `${confidenceLevel * 100}% Confidence Region`,
+                            data: confidenceArea,
+                            borderColor: 'transparent',
+                            backgroundColor: 'rgba(46, 204, 113, 0.5)',
+                            borderWidth: 0,
+                            fill: true,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 't-value'
+                            },
+                            ticks: {
+                                maxTicksLimit: 9
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: `t-Distribution with df = ${df}, ${confidenceLevel * 100}% CI: [${lowerBound.toFixed(2)}, ${upperBound.toFixed(2)}]`,
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Comparison Chart
+        let comparisonChart;
+        function updateComparisonChart() {
+            const df = parseInt(document.getElementById('comparisonDF').value);
+            document.getElementById('dfValue').textContent = df;
+            
+            const ctx = document.getElementById('comparisonChart').getContext('2d');
+            
+            if (comparisonChart) {
+                comparisonChart.destroy();
+            }
+            
+            const labels = [];
+            const normalData = [];
+            const tData = [];
+            
+            for (let x = -4; x <= 4; x += 0.1) {
+                labels.push(x.toFixed(1));
+                normalData.push(normalPDF(x));
+                tData.push(tPDF(x, df));
+            }
+            
+            comparisonChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Standard Normal (z)',
+                            data: normalData,
+                            borderColor: '#3498db',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4
+                        },
+                        {
+                            label: `t-Distribution (df = ${df})`,
+                            data: tData,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            fill: false,
+                            pointRadius: 0,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Value'
+                            },
+                            ticks: {
+                                maxTicksLimit: 9
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Probability Density'
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Normal vs. t-Distribution Comparison',
+                            font: { size: 16 }
+                        },
+                        legend: {
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Practice Exercises
+        function calculateExercise1() {
+            const mean = parseFloat(document.getElementById('ex1Mean').value);
+            const stdDev = parseFloat(document.getElementById('ex1StdDev').value);
+            const sampleSize = parseInt(document.getElementById('ex1SampleSize').value);
+            const confidenceLevel = parseFloat(document.getElementById('ex1Confidence').value);
+            
+            const zCritical = zValues[confidenceLevel];
+            const standardError = stdDev / Math.sqrt(sampleSize);
+            const marginOfError = zCritical * standardError;
+            const lowerBound = mean - marginOfError;
+            const upperBound = mean + marginOfError;
+            
+            document.getElementById('ex1SE').textContent = standardError.toFixed(2);
+            document.getElementById('ex1Critical').textContent = zCritical;
+            document.getElementById('ex1ME').textContent = marginOfError.toFixed(2);
+            document.getElementById('ex1Lower').textContent = lowerBound.toFixed(2);
+            document.getElementById('ex1Upper').textContent = upperBound.toFixed(2);
+            
+            document.getElementById('ex1Result').style.display = 'block';
+        }
+        
+        function calculateExercise2() {
+            const mean = parseFloat(document.getElementById('ex2Mean').value);
+            const stdDev = parseFloat(document.getElementById('ex2StdDev').value);
+            const sampleSize = parseInt(document.getElementById('ex2SampleSize').value);
+            const confidenceLevel = parseFloat(document.getElementById('ex2Confidence').value);
+            
+            const df = sampleSize - 1;
+            const tCritical = getTCritical(df, confidenceLevel);
+            const standardError = stdDev / Math.sqrt(sampleSize);
+            const marginOfError = tCritical * standardError;
+            const lowerBound = mean - marginOfError;
+            const upperBound = mean + marginOfError;
+            
+            document.getElementById('ex2DF').textContent = df;
+            document.getElementById('ex2SE').textContent = standardError.toFixed(2);
+            document.getElementById('ex2Critical').textContent = tCritical.toFixed(3);
+            document.getElementById('ex2ME').textContent = marginOfError.toFixed(2);
+            document.getElementById('ex2Lower').textContent = lowerBound.toFixed(2);
+            document.getElementById('ex2Upper').textContent = upperBound.toFixed(2);
+            
+            document.getElementById('ex2Result').style.display = 'block';
+        }
+
+        // Quiz Functions
+        let selectedOptions = {};
+        
+        function selectOption(element, questionNum) {
+            const options = element.parentElement.getElementsByClassName('option');
+            for (let i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected');
+            }
+            
+            element.classList.add('selected');
+            selectedOptions[questionNum] = element;
+            document.getElementById(`feedback${questionNum}`).className = 'feedback';
+        }
+        
+        function checkQuiz() {
+            const correctAnswers = {
+                1: 2,
+                2: 2,
+                3: 1,
+                4: 2,
+                5: 1
+            };
+            
+            let score = 0;
+            
+            for (let i = 1; i <= 5; i++) {
+                const selected = selectedOptions[i];
+                const feedback = document.getElementById(`feedback${i}`);
+                
+                if (selected) {
+                    const options = selected.parentElement.getElementsByClassName('option');
+                    const selectedIndex = Array.from(options).indexOf(selected);
+                    
+                    if (selectedIndex === correctAnswers[i]) {
+                        score++;
+                        selected.classList.add('correct');
+                        feedback.textContent = 'Correct! ' + getFeedbackMessage(i, true);
+                        feedback.className = 'feedback correct';
+                    } else {
+                        selected.classList.add('incorrect');
+                        options[correctAnswers[i]].classList.add('correct');
+                        feedback.textContent = 'Incorrect. ' + getFeedbackMessage(i, false);
+                        feedback.className = 'feedback incorrect';
+                    }
+                } else {
+                    feedback.textContent = 'Please select an answer.';
+                    feedback.className = 'feedback incorrect';
+                }
+            }
+            
+            const results = document.getElementById('quizResults');
+            const scoreElement = document.getElementById('score');
+            const messageElement = document.getElementById('quizMessage');
+            
+            scoreElement.textContent = score;
+            
+            if (score === 5) {
+                messageElement.textContent = 'Excellent! You have a solid understanding of confidence intervals.';
+            } else if (score >= 3) {
+                messageElement.textContent = 'Good job! You understand the basics, but there is room for improvement.';
+            } else {
+                messageElement.textContent = 'Keep studying! Review the material and try again.';
+            }
+            
+            results.style.display = 'block';
+        }
+        
+        function getFeedbackMessage(questionNum, isCorrect) {
+            const messages = {
+                1: "A confidence interval doesn't give the probability that a specific interval contains the parameter. Instead, it describes the long-run performance of the method.",
+                2: "The t-distribution is used when the population standard deviation is unknown and the sample size is small.",
+                3: "Larger sample sizes provide more information about the population, which reduces uncertainty and narrows the confidence interval.",
+                4: "The confidence level is 1 - α, so for a 90% confidence interval, α = 0.10.",
+                5: "Higher confidence levels require wider intervals to be more certain about capturing the true parameter."
+            };
+            
+            return messages[questionNum];
+        }
+        
+        function resetQuiz() {
+            selectedOptions = {};
+            
+            const options = document.getElementsByClassName('option');
+            for (let i = 0; i < options.length; i++) {
+                options[i].classList.remove('selected', 'correct', 'incorrect');
+            }
+            
+            for (let i = 1; i <= 5; i++) {
+                document.getElementById(`feedback${i}`).className = 'feedback';
+            }
+            
+            document.getElementById('quizResults').style.display = 'none';
+        }
+
+        // Initialize charts when page loads
+        window.onload = function() {
+            updateIntroChart();
+            updateNormalChart();
+            updateTChart();
+            updateComparisonChart();
+        };
+    </script>
+</body>
+</html>
